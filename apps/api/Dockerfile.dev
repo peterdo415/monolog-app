@@ -1,0 +1,28 @@
+# apps/api/Dockerfile.dev
+
+# 1. ベースイメージ
+FROM node:20-alpine AS base
+WORKDIR /app
+
+# 2. 依存インストール
+# ルートの pnpm-workspace.yaml と lockfile を参照
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# API 側 package.json と TypeScript 設定も
+COPY apps/api/package.json apps/api/
+COPY packages/typescript-config packages/typescript-config
+COPY packages/db/package.json packages/db/
+
+RUN npm install -g pnpm \
+    && pnpm install --frozen-lockfile
+
+# 3. ソースを全コピー
+COPY . .
+
+# 4. 作業ディレクトリを API 配下に移動
+WORKDIR /app/apps/api
+
+# 5. devサーバ起動
+ENV NODE_ENV=development
+# .env は docker-compose の env_file でマウント／注入される前提
+EXPOSE 3001
+CMD ["pnpm", "run", "dev"]

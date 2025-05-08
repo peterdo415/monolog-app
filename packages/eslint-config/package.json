@@ -1,12 +1,16 @@
 {
   "name": "@repo/eslint-config",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "main": "index.js",
   "type": "module",
   "private": true,
   "exports": {
     "./base": "./base.js",
     "./next-js": "./next.js",
     "./react-internal": "./react-internal.js"
+  },
+  "dependencies": {
+    "@repo/typescript-config": "workspace:*"
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",

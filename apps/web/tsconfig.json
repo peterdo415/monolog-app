@@ -1,18 +1,35 @@
 {
-  "extends": "@repo/typescript-config/nextjs.json",
+  "extends": "../../packages/tsconfig/tsconfig.base.json",
   "compilerOptions": {
+    "moduleResolution": "node",
+    "module": "ESNext",
+    "jsx": "preserve",
+    "incremental": true,
+    "outDir": ".next",
+    "target": "ES2022",
+    "strict": true,
     "plugins": [
       {
         "name": "next"
       }
-    ]
+    ],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": ["next", "react", "react-dom"]
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     "next-env.d.ts",
-    "next.config.js",
-    ".next/types/**/*.ts"
+    "next.config.ts",
+    ".next/types/**/*.ts",
+    "global.d.ts"
   ],
   "exclude": [
     "node_modules"

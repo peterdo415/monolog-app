@@ -1,0 +1,29 @@
+{
+  "monorepo": true,
+  "root": "apps/monolog-app",
+  "sourceRoot": "apps/monolog-app/src",
+  "compilerOptions": {
+    "webpack": true,
+    "tsConfigPath": "apps/monolog-app/tsconfig.app.json"
+  },
+  "projects": {
+    "api": {
+      "type": "application",
+      "root": "apps/api",
+      "entryFile": "main",
+      "sourceRoot": "apps/api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/api/tsconfig.app.json"
+      }
+    },
+    "monolog-app": {
+      "type": "application",
+      "root": "apps/monolog-app",
+      "entryFile": "main",
+      "sourceRoot": "apps/monolog-app/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/monolog-app/tsconfig.app.json"
+      }
+    }
+  }
+}

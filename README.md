@@ -1,84 +1,100 @@
-# Turborepo starter
+# ツリー項羽蔵例
 
-This Turborepo starter is maintained by the Turborepo core team.
+.
+├─ apps/
+│  ├─ web/                       # Next.js 15 (Amplify にデプロイ)
+│  │  ├─ app/
+│  │  │  ├─ page.tsx
+│  │  │  ├─ layout.tsx
+│  │  │  └─ components/          # ページ固有や極小 UI
+│  │  ├─ public/
+│  │  ├─ next.config.ts
+│  │  ├─ tsconfig.json           # extends ../../tsconfig.base.json
+│  │  ├─ package.json
+│  │  └─ Dockerfile
+│  └─ api/                       # Nest.js 11 (Lambda/ECR)
+│     ├─ src/
+│     │  ├─ main.ts
+│     │  └─ modules/             # Feature modules
+│     ├─ test/
+│     ├─ nest-cli.json           # "monorepo": true
+│     ├─ tsconfig.json
+│     ├─ package.json
+│     └─ Dockerfile
+├─ packages/
+│  ├─ ui/                        # shadcn‑ui ラッパー & Storybook
+│  │  └─ index.ts
+│  ├─ db/                        # Drizzle schema / migrations
+│  │  ├─ schema/
+│  │  ├─ migrations/
+│  │  └─ client.ts
+│  ├─ auth/                      # Better Auth + Drizzle adapters
+│  ├─ config/                    # 共通 ESLint/Biome/TS 設定
+│  │  ├─ eslint.config.js
+│  │  ├─ biome.json
+│  │  └─ tsconfig.base.json
+│  └─ lambdas/                   # 補助 Lambda (TS / Python)
+│     ├─ ts/
+│     └─ python/
+├─ infra/
+│  └─ terraform/
+│     ├─ modules/
+│     │  ├─ network/
+│     │  ├─ rds/
+│     │  ├─ amplify/
+│     │  ├─ ecr/
+│     │  └─ lambda/
+│     └─ environments/
+│        ├─ dev/
+│        │  ├─ main.tf
+│        │  └─ backend.hcl
+│        └─ prod/
+│           ├─ main.tf
+│           └─ backend.hcl
+├─ docker/
+│  ├─ dev.Dockerfile             # 共通ベースイメージ
+│  └─ compose.override.yml       # 個人環境の上書き
+├─ docker-compose.yml            # Next・Nest・Supabase・PgAdmin を起動
+├─ .github/
+│  └─ workflows/
+│     ├─ ci-web.yml              # build → Amplify Artifact upload
+│     ├─ ci-api.yml              # build → ECR push → Lambda update
+│     ├─ docker-publish.yml      # 共通 image build (optional)
+│     └─ terraform-plan.yml      # PR 時に `terraform plan`
+├─ turbo.json                    # Turborepo pipeline 設定
+├─ package.json                  # root workspace 定義
+├─ tsconfig.base.json            # compilerOptions 共通
+├─ biome.json                    # ルート設定
+├─ .dockerignore
+├─ .gitignore
+├─ .env.example
+└─ README.md
 
-## Using this example
+# 依存関係について
+web,api直下のpackage.jsonは残す
+ベストプラクティス：設定は「中央集中＋最小オーバーライド」
+共通設定は packages/typescript-config/* にまとめる
 
-Run the following command:
+Next.js や Nest.js 向けの tsconfig（nextjs.json / nestjs.json）はここだけに置く。
 
-```sh
-npx create-turbo@latest
+たとえば target や moduleResolution といった compilerOptions はすべて中央のファイルで定義。
+
+アプリ側の tsconfig.json は「extends + include/exclude のみ」
+
+```jsonc
+{
+  "extends": "@repo/typescript-config/nextjs.json",
+  "include": ["app/**/*.ts", "app/**/*.tsx"],
+  "exclude": ["node_modules", ".next"]
+}
 ```
 
-## What's inside?
+compilerOptions は一切書かず、中央の設定を丸ごと継承。
 
-This Turborepo includes the following packages/apps:
+アプリ固有にどうしてもオーバーライドが必要な場合だけ、そのプロパティを上に書く。
 
-### Apps and Packages
+package.json はワークスペースの管理とスクリプト／依存だけ
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+TypeScript の設定はここには書かず、あくまで依存パッケージ（typescript、@types/*、drizzle-orm など）と実行スクリプトだけに留める。
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm build
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm dev
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-npx turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-npx turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+中央設定との間で scripts が重複する場合は、アプリ側にスクリプトをまとめ、共通化が望ましければ root の package.json にだけ定義してワークスペース経由で叩く運用もあります。

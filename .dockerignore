@@ -1,0 +1,13 @@
+# Node Modules はホストと同期させるのでイメージには不要
+node_modules
+**/node_modules
+
+# ビルド成果物
+.next
+dist
+turbo
+
+# ローカル設定
+.env
+
+.next

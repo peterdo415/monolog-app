@@ -1,0 +1,23 @@
+{
+  "extends": "@repo/typescript-config/nestjs.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "module": "CommonJS",
+    "strict": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": [
+   "src/**/*.ts",
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

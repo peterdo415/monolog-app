@@ -1,0 +1,15 @@
+{
+  "name": "@monolog/db",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "migrate:generate": "drizzle-kit generate",
+    "migrate:push":     "drizzle-kit push",
+    "migrate":           "drizzle-kit migrate"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.x",
+    "drizzle-kit": "^0.x",
+    "pg": "^8.x"
+  }
+}
