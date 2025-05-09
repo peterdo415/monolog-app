@@ -1,5 +1,5 @@
 {
-  "name": "@repo/eslint-config",
+  "name": "@monolog/eslint-config",
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
@@ -10,7 +10,7 @@
     "./react-internal": "./react-internal.js"
   },
   "dependencies": {
-    "@repo/typescript-config": "workspace:*"
+    "@monolog/typescript-config": "workspace:*"
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",

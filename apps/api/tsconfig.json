@@ -1,5 +1,5 @@
 {
-  "extends": "@repo/typescript-config/nestjs.json",
+  "extends": "@monolog/typescript-config/nestjs.json",
   "compilerOptions": {
     "plugins": [
       {
@@ -11,10 +11,20 @@
     "module": "CommonJS",
     "strict": true,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "@monolog/db/*": ["../../packages/db/src/*"],
+      "@monolog/api/*": ["src/*"]
+    }
   },
+  "references": [
+    {
+      "path": "../../packages/db/tsconfig.json"
+    }
+  ],
   "include": [
-   "src/**/*.ts",
+    "src/**/*.ts",
   ],
   "exclude": [
     "node_modules",

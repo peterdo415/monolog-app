@@ -1,4 +1,10 @@
 {
+  "compilerOptions": {
+    "rootDir": "./src",
+  },
+  "references": [
+    { "path": "../../packages/db" }
+  ],
   "extends": "./tsconfig.json",
   "exclude": ["test", "node_modules"]
 }

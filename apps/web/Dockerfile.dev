@@ -14,6 +14,8 @@ COPY . .
 
 WORKDIR /app/apps/web
 
+RUN apk add --no-cache curl
+
 # Next.js Dev Server
 CMD ["pnpm", "run", "dev"]
 

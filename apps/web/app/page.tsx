@@ -1,10 +1,19 @@
+export const runtime = 'edge';           // Edge ランタイムで実行
+export const dynamic = 'force-dynamic';  // SSR（サーバーサイドレンダリング）を強制
+
 import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui";
+import { Button } from "@monolog/ui";
 import styles from "./page.module.css";
+// import * as UsersRoute from './api/users/route';// import { db } from "@monolog/db/client";
 
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
   srcDark: string;
+};
+
+type User = {
+  id: number;
+  name: string;
 };
 
 const ThemeImage = (props: Props) => {
@@ -18,7 +27,11 @@ const ThemeImage = (props: Props) => {
   );
 };
 
-export default function Home() {
+const BASE = process.env.NEXT_PUBLIC_API_URL!;
+
+export default async function Home() {
+  const users = await fetch(`${BASE}/api/users`, { cache: 'no-store' }).then(r => r.json());
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -66,6 +79,11 @@ export default function Home() {
         <Button appName="web" className={styles.secondary}>
           Open alert
         </Button>
+        <ul>
+        {users.map((user: User) => (
+          <li key={user.id}>{user.name}</li>
+        ))}
+      </ul>
       </main>
       <footer className={styles.footer}>
         <a

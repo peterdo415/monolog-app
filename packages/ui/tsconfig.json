@@ -1,5 +1,5 @@
 {
-  "extends": "@repo/typescript-config/react-library.json",
+  "extends": "@monolog/typescript-config/react-library.json",
   "compilerOptions": {
     "declaration": true,
     "declarationDir": "dist",

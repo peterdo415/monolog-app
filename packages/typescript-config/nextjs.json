@@ -10,7 +10,7 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@repo/ui/*": ["packages/ui/*"]
+      "@monolog/ui/*": ["packages/ui/*"]
     }
   }
 }

@@ -1,12 +1,12 @@
 // apps/api/src/app.module.ts
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ApiModule } from './api.module';
+import { UserModule } from './modules/users/users.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    ApiModule,
+    UserModule,
   ],
 })
 export class AppModule {}

@@ -4,12 +4,19 @@
   "main": "dist/index.js",
   "scripts": {
     "migrate:generate": "drizzle-kit generate",
-    "migrate:push":     "drizzle-kit push",
-    "migrate":           "drizzle-kit migrate"
+    "migrate:push": "drizzle-kit push",
+    "migrate": "drizzle-kit migrate",
+    "seed": "ts-node --project tsconfig.json -r dotenv/config scripts/seed.ts"
   },
   "dependencies": {
-    "drizzle-orm": "^0.x",
+    "dotenv": "^16.4.7",
     "drizzle-kit": "^0.x",
-    "pg": "^8.x"
+    "drizzle-orm": "^0.x",
+    "pg": "^8.15.6"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^9.7.0",
+    "@types/pg": "^8.15.0",
+    "ts-node": "^10.9.2"
   }
 }

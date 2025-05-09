@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "@monolog/web",
   "version": "0.1.0",
   "main": "index.js",
   "type": "module",
@@ -12,15 +12,15 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@repo/ui": "workspace:*",
-    "@repo/eslint-config": "workspace:*",
+    "@monolog/ui": "workspace:*",
+    "@monolog/eslint-config": "workspace:*",
     "next": "^15.3.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "@repo/eslint-config": "*",
-    "@repo/typescript-config": "workspace:*",
+    "@monolog/eslint-config": "*",
+    "@monolog/typescript-config": "workspace:*",
     "@types/node": "^22.15.3",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",

@@ -21,7 +21,12 @@
     "allowJs": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "types": ["next", "react", "react-dom"]
+    "types": ["next", "react", "react-dom"],
+    "baseUrl": ".",
+    "paths": {
+      "@monolog/db": ["../../packages/db/src"],
+      "@monolog/ui": ["../../packages/ui/src"]
+    }
   },
   "include": [
     "**/*.ts",

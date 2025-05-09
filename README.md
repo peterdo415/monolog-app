@@ -70,6 +70,24 @@
 ├─ .env.example
 └─ README.md
 
+# NestJS BFF
+src/
+├─ app.module.ts
+├─ main.ts
+└─ modules/
+   ├─ users/  
+   │  ├─ dto/  
+   │  │  ├─ create-user.dto.ts  
+   │  │  └─ update-user.dto.ts  
+   │  ├─ users.controller.ts    ← POST/PATCH/DELETE  
+   │  ├─ users.service.ts  
+   │  └─ users.module.ts  
+   └─ auth/  
+      ├─ auth.controller.ts  
+      ├─ auth.service.ts  
+      └─ auth.module.ts  
+
+
 # 依存関係について
 web,api直下のpackage.jsonは残す
 ベストプラクティス：設定は「中央集中＋最小オーバーライド」
@@ -83,7 +101,7 @@ Next.js や Nest.js 向けの tsconfig（nextjs.json / nestjs.json）はここ�
 
 ```jsonc
 {
-  "extends": "@repo/typescript-config/nextjs.json",
+  "extends": "@monolog/typescript-config/nextjs.json",
   "include": ["app/**/*.ts", "app/**/*.tsx"],
   "exclude": ["node_modules", ".next"]
 }
