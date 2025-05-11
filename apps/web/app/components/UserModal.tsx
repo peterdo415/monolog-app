@@ -15,7 +15,6 @@ export function UserModal({ onSubmit, onClose }: Props) {
 
   const handle = (e: FormEvent) => {
     e.preventDefault();
-    console.log({ name, email, password });   // todo: 削除
     onSubmit({ name, email, password });
   };
 

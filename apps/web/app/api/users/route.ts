@@ -16,7 +16,6 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log({ body });   // todo: 削除
     const API_URL =
       process.env.API_URL ||
       (process.env.NODE_ENV === 'development'
@@ -29,19 +28,24 @@ export async function POST(request: Request) {
       body: JSON.stringify(body),
     });
 
-    // if (!res.ok) {
-    //   // NestJS 側エラーコードをそのまま返す
-    //   return NextResponse.json({ error: 'BFF error' }, { status: res.status });
-    // }
-    // todo: 削除、上に戻す
     if (!res.ok) {
+      const isDev = process.env.NODE_ENV !== 'production';
       const text = await res.text();
-      return NextResponse.json(
-        { upstreamStatus: res.status, upstreamBody: text },
-        { status: res.status }
-      );
-    }
     
+      if (isDev) {
+        // 開発時は詳細なエラー情報を返す
+        return NextResponse.json(
+          { upstreamStatus: res.status, upstreamBody: text },
+          { status: res.status }
+        );
+      } else {
+        // 本番時は汎用的なエラーメッセージのみ返す
+        return NextResponse.json(
+          { error: 'BFF error' },
+          { status: res.status }
+        );
+      }
+    }
 
     const newUser = await res.json();
     // 追加成功は 201 を明示

@@ -14,8 +14,6 @@ export class UserController {
 
   @Post()
   async create(@Body() dto: CreateUserDto): Promise<User> {
-    console.log('🐛 NestJS received DTO:', dto);  // todo: 削除
-    // await this.userService.create(dto);
     return this.userService.create(dto);
   }
 }
