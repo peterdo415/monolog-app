@@ -58,11 +58,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
-// apps/web/app/api/users/route.ts
-// import { NextResponse } from 'next/server';
-// export async function GET() {
-//   // テスト用に固定レスポンスを返してみる
-//   return NextResponse.json([{ id: 1, name: 'TestUser' }]);
-// }
-
