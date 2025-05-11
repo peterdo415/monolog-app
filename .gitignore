@@ -37,4 +37,8 @@ yarn-error.log*
 .DS_Store
 *.pem
 # SpecStory explanation file
+.specstory/*
+
+.cursor/*
+# SpecStory explanation file
 .specstory/.what-is-this.md

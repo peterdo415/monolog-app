@@ -1,0 +1,75 @@
+# ── Dockerfile.dev ──
+#
+# マルチステージ構成で依存を一度だけ解決し、
+# API と Web をそれぞれのターゲットで起動します。
+
+### 1) 依存解決ステージ ###
+FROM node:20-slim AS deps
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends procps && rm -rf /var/lib/apt/lists/*
+
+# pnpm CLI を固定
+RUN npm install -g pnpm@^10
+
+# モノレポのルート package / lock / workspace 定義をコピー
+COPY ../package.json ../pnpm-lock.yaml ../pnpm-workspace.yaml ./
+
+# モノレポ全体の依存を一度だけインストール（optionalDependencies も含む）
+RUN pnpm install --include=optional --workspace-root
+
+### 2) API 開発用ステージ ###
+FROM deps AS api-dev
+WORKDIR /app
+
+# API／DB／TS 設定のみコピー
+COPY ../apps/api       ./apps/api
+COPY ../packages/db    ./packages/db
+COPY ../packages/typescript-config ./packages/typescript-config
+COPY ../packages/eslint-config       ./packages/eslint-config
+
+WORKDIR /app/apps/api
+RUN pnpm install
+
+ENV NODE_ENV=development
+EXPOSE 3001
+# ホットリロードモード
+CMD ["pnpm", "exec", "nest", "start", "--watch"]
+
+### 3) Web 開発用ステージ ###
+FROM deps AS web-dev
+WORKDIR /app
+
+# Web／UI／ESLint 設定のみコピー
+COPY ../apps/web          ./apps/web
+COPY ../packages/ui       ./packages/ui
+COPY ../packages/eslint-config ./packages/eslint-config
+COPY ../packages/typescript-config ./packages/typescript-config
+COPY ../packages/db       ./packages/db
+
+WORKDIR /app/apps/web
+ENV NODE_ENV=development
+EXPOSE 3000
+CMD ["pnpm", "run", "dev"]
+
+### 4) マイグレーション実行ステージ ###
+FROM deps AS migrator
+
+# 依存解決済みなのでコードだけコピー
+COPY .. .
+
+# Postgres 側の host ツール (nc) を入れる
+USER root
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends netcat-openbsd \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app/packages/db
+
+# DB の 5432 ポートが open になるまで待ってから migrate
+ENTRYPOINT ["sh", "-c", "\
+  echo '⏳ Waiting for DB…'; \
+  until nc -z db 5432; do sleep 1; done; \
+  echo '✅ DB is up, running migrations'; \
+  pnpm exec drizzle-kit migrate \
+"]

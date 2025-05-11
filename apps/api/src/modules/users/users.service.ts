@@ -5,9 +5,10 @@ import { users }             from '@monolog/db/schema';
 import type { CreateUserDto } from '@monolog/api/dto/create-user.dto';
 import type { User }         from '@monolog/db/types';
 
+
 @Injectable()
-export class UserService {
-  private readonly logger = new Logger(UserService.name);
+export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
 
   /** 全件取得 */
   async findAll(): Promise<User[]> {
@@ -27,14 +28,27 @@ export class UserService {
 
   /** 新規作成 */
   async create(dto: CreateUserDto): Promise<User> {
+    // console.log({ dto });   // todo: 削除
+    // console.log(users);   // todo: 削除
     this.logger.log(
       `create: creating user with payload ${JSON.stringify(dto)}`,
     );
     try {
-      const [created] = await db
+      // ── デバッグ用に一旦 builder を分ける
+      const insertBuilder = db
         .insert(users)
-        .values([{ name: dto.name, email: dto.email }])
-        .returning();
+        .values([{ name: dto.name, email: dto.email, password: dto.password }]);
+    
+      // ここで生成される SQL をログに出力
+      this.logger.log('🔍 Generated SQL:', insertBuilder.toSQL());
+    
+      // ── 元の values／returning
+      // const [created] = await db
+      //   .insert(users)
+      //   .values([{ name: dto.name, email: dto.email, password: dto.password }])
+      //   .returning();
+    
+      const [created] = await insertBuilder.returning();
       this.logger.log(`create: successfully created user id=${created.id}`);
       return created;
     } catch (err) {
@@ -44,5 +58,5 @@ export class UserService {
       );
       throw new InternalServerErrorException('Error creating user');
     }
-  }
+  }  
 }

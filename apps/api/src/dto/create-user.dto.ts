@@ -1,15 +1,16 @@
-import { IsString, IsOptional } from 'class-validator';
+// apps/api/src/users/dto/create-user.dto.ts
+import { IsString, IsEmail, Length, IsPassportNumber } from 'class-validator';
 
-/**
- * DTO: 新規アイテム作成時のリクエストボディ定義
- */
 export class CreateUserDto {
-  name: string;
-  email: string;
+  @IsString()               // 文字列であることを保証
+  @Length(1, 255)           // 長さ制約
+  readonly name!: string;
 
-  constructor(data: { name: string; email: string }) {
-    // 必須プロパティを明示的に初期化
-    this.name = data.name;
-    this.email = data.email;
-  }
+  @IsEmail()                // メール形式を保証
+  @Length(5, 255)
+  readonly email!: string;
+
+  @IsString()
+  @Length(4, 255)
+  readonly password!: string;
 }

@@ -1,12 +1,13 @@
 // packages/db/drizzle.config.ts
 import { defineConfig } from "drizzle-kit";
 import * as dotenv from "dotenv";
+import { join } from "path";
 
-dotenv.config({ path: process.cwd() + "/.env" });
+dotenv.config({ path: join(__dirname, "../../.env") });
 
 export default defineConfig({
   // 「packages/db」直下で実行する前提なので、ここは相対パスで "./" から始める
-  schema: "./schema/index.ts",
+  schema: "./src/schema/index.ts",
 
   // migrations フォルダも同様に相対指定
   out: "./migrations",
@@ -15,7 +16,7 @@ export default defineConfig({
   dialect: "postgresql",
 
   dbCredentials: {
-    connectionString: process.env.DATABASE_URL!
+    url: process.env.DATABASE_URL!
   },
 
   migrations: {

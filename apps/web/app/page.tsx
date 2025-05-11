@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';  // SSR（サーバーサイドレンダ
 import Image, { type ImageProps } from "next/image";
 import { Button } from "@monolog/ui";
 import styles from "./page.module.css";
-// import * as UsersRoute from './api/users/route';// import { db } from "@monolog/db/client";
+import { UserList } from './components/UserList'
 
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
@@ -27,10 +27,15 @@ const ThemeImage = (props: Props) => {
   );
 };
 
-const BASE = process.env.NEXT_PUBLIC_API_URL!;
+const BASE = process.env.NEXT_PUBLIC_API_URL;
 
 export default async function Home() {
-  const users = await fetch(`${BASE}/api/users`, { cache: 'no-store' }).then(r => r.json());
+  const url = BASE ? `${BASE}/api/users` : 'http://localhost:3000/api/users';
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) {
+    throw new Error(`Failed to load users: ${res.status} ${await res.text()}`);
+  }
+  const users = await res.json();
 
   return (
     <div className={styles.page}>
@@ -79,11 +84,13 @@ export default async function Home() {
         <Button appName="web" className={styles.secondary}>
           Open alert
         </Button>
-        <ul>
+        {/* <ul>
         {users.map((user: User) => (
           <li key={user.id}>{user.name}</li>
         ))}
-      </ul>
+      </ul> */}
+        <h1>ユーザー一覧</h1>
+        <UserList />
       </main>
       <footer className={styles.footer}>
         <a

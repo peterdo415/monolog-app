@@ -15,7 +15,8 @@ const pool = new Pool({
 });
 const db = drizzle(pool);
 
-type UserRecord = { name: string; email: string; };
+// insert 用の正しい型」を自動取得
+type NewUserRecord = typeof users.$inferInsert
 
 async function main() {
   // 3) テーブルがなければ作成
@@ -24,15 +25,17 @@ async function main() {
       id serial PRIMARY KEY,
       name varchar(255) NOT NULL,
       email varchar(255) NOT NULL UNIQUE,
+      password varchar(255) NOT NULL,
       created_at timestamp DEFAULT now() NOT NULL
     );
   `);
 
   // 4) ダミーデータ生成
   const DUMMY_COUNT = 10;
-  const records: UserRecord[] = Array.from({ length: DUMMY_COUNT }).map(() => ({
+  const records: NewUserRecord[] = Array.from({ length: DUMMY_COUNT }).map(() => ({
     name: faker.person.fullName(),
     email: faker.internet.email(),
+    password: faker.internet.password(),
   }));
 
   // 5) 一括挿入

@@ -8,6 +8,7 @@
     "declarationMap": true,
     "outDir": "dist",
     "rootDir": "src",
+    "types": ["node", "dotenv"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]

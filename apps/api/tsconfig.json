@@ -16,7 +16,8 @@
     "paths": {
       "@monolog/db/*": ["../../packages/db/src/*"],
       "@monolog/api/*": ["src/*"]
-    }
+    },
+    "skipLibCheck": true,
   },
   "references": [
     {

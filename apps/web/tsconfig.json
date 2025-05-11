@@ -25,7 +25,8 @@
     "baseUrl": ".",
     "paths": {
       "@monolog/db": ["../../packages/db/src"],
-      "@monolog/ui": ["../../packages/ui/src"]
+      "@monolog/ui": ["../../packages/ui/src"],
+      "@monolog/db/types": ["../../packages/db/src/types"]
     }
   },
   "include": [
