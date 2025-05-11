@@ -1,4 +1,41 @@
+'use client';
+
 import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+function AuthNav() {
+  const [user, setUser] = useState<{ name: string } | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    fetch('/api/auth/session')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => setUser(data?.user ?? null));
+  }, []);
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/signout', { method: 'POST' });
+    location.reload();
+  };
+
+  if (user) {
+    return (
+      <button
+        onClick={handleLogout}
+        className="text-blue-600 hover:underline font-medium transition"
+      >
+        ログアウト
+      </button>
+    );
+  }
+  return (
+    <Link href="/signup" className="text-blue-600 hover:underline font-medium transition">
+      新規登録
+    </Link>
+  );
+}
 
 export function NavBar() {
   return (
@@ -11,6 +48,7 @@ export function NavBar() {
         <div className="flex items-center gap-6 ml-auto">
           <a href="#" className="text-gray-600 hover:text-blue-600 font-medium transition">ダッシュボード</a>
           <a href="#" className="text-gray-600 hover:text-blue-600 font-medium transition">設定</a>
+          <AuthNav />
         </div>
       </div>
     </nav>
