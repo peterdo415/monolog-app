@@ -5,6 +5,8 @@ import Image, { type ImageProps } from "next/image";
 import { Button } from "@monolog/ui";
 import styles from "./page.module.css";
 import { UserList } from './components/UserList'
+import { Footer } from './components/Footer'
+import { NavBar } from './components/NavBar'
 
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
@@ -39,7 +41,8 @@ export default async function Home() {
 
   return (
     <div className={styles.page}>
-      <main className={styles.main}>
+      <NavBar />
+      <main className={styles.main} style={{ marginTop: '64px' }}>
         <ThemeImage
           className={styles.logo}
           srcLight="turborepo-dark.svg"
@@ -84,44 +87,9 @@ export default async function Home() {
         <Button appName="web" className={styles.secondary}>
           Open alert
         </Button>
-        {/* <ul>
-        {users.map((user: User) => (
-          <li key={user.id}>{user.name}</li>
-        ))}
-      </ul> */}
-        <h1>ユーザー一覧</h1>
         <UserList />
       </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://turborepo.com?utm_source=create-turbo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to turborepo.com →
-        </a>
-      </footer>
+      <Footer />
     </div>
   );
 }

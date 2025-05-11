@@ -30,20 +30,33 @@ export function UserList() {
   });
 
   return (
-    <div>
-      <button onClick={open}>ユーザー追加</button>
+    <div className="flex flex-col items-center justify-center min-h-[60vh] py-8">
+      <button
+        onClick={open}
+        className="mb-8 px-6 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition font-semibold text-lg"
+      >
+        ＋ ユーザー追加
+      </button>
       {isOpen && (
         <UserModal
           onSubmit={dto => mutation.mutate(dto)}
           onClose={close}
         />
       )}
-      {mutation.isPending && <p>ユーザーを追加中...</p>}
-      <ul>
-        {users.map(user => (
-          <li key={user.id}>{user.name}</li>
-        ))}
-      </ul>
+      {mutation.isPending && <p className="mb-4 text-blue-600">ユーザーを追加中...</p>}
+      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6">
+        <h2 className="text-2xl font-bold mb-4 text-center">ユーザー一覧</h2>
+        <ul className="space-y-2">
+          {users.map(user => (
+            <li
+              key={user.id}
+              className="px-4 py-2 rounded-md bg-gray-50 hover:bg-blue-50 transition border border-gray-100 text-gray-800"
+            >
+              {user.name}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

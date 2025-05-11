@@ -19,15 +19,64 @@ export function UserModal({ onSubmit, onClose }: Props) {
   };
 
   return ReactDOM.createPortal(
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-6 rounded shadow-lg">
-        <h2 className="text-xl mb-4">ユーザー追加</h2>
-        <form onSubmit={handle}>
-          <input className="block mb-2" placeholder="Name" value={name} onChange={e => setName(e.target.value)} required />
-          <input className="block mb-2" type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
-          <input className="block mb-4" type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
-          <button type="submit" className="mr-2">追加</button>
-          <button type="button" onClick={onClose}>キャンセル</button>
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center animate-fade-in">
+      <div className="bg-white w-full max-w-md p-8 rounded-2xl shadow-2xl border border-gray-100 relative">
+        <button
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold focus:outline-none"
+          onClick={onClose}
+          aria-label="閉じる"
+        >
+          ×
+        </button>
+        <h2 className="text-2xl font-bold mb-6 text-center">ユーザー追加</h2>
+        <form onSubmit={handle} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">名前</label>
+            <input
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              placeholder="Name"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">メールアドレス</label>
+            <input
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">パスワード</label>
+            <input
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="flex justify-end space-x-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-lg border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+            >
+              キャンセル
+            </button>
+            <button
+              type="submit"
+              className="px-5 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition shadow"
+            >
+              追加
+            </button>
+          </div>
         </form>
       </div>
     </div>,
