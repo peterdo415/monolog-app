@@ -4,7 +4,8 @@ import dotenv from 'dotenv';
 import { faker } from '@faker-js/faker';
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { users } from '../src/schema';
+import { users, itemCategories, units, locations, householdItems } from '../src/schema/index';
+import { eq } from 'drizzle-orm';
 
 // 1) 必ず最初に .env を読み込む
 dotenv.config({ path: path.resolve(process.cwd(), '../../.env') });
@@ -15,8 +16,8 @@ const pool = new Pool({
 });
 const db = drizzle(pool);
 
-// insert 用の正しい型」を自動取得
-type NewUserRecord = typeof users.$inferInsert
+type NewUserRecord = typeof users.$inferInsert;
+type NewHouseholdItem = typeof householdItems.$inferInsert;
 
 async function main() {
   // 3) テーブルがなければ作成
@@ -42,6 +43,57 @@ async function main() {
   await db.insert(users).values(records);
 
   console.log(`✔ ${DUMMY_COUNT} 件のダミー・ユーザーを作成しました`);
+
+  // loginユーザーを作成（既存なら取得）
+  const loginUserArr = await db.select().from(users).where(eq(users.email, 'login@login.com')).limit(1);
+  let loginUser = loginUserArr[0];
+  if (!loginUser) {
+    [loginUser] = await db.insert(users).values({ name: 'login', email: 'login@login.com', password: 'login' }).returning();
+  }
+
+  // マスターデータ取得
+  const [category] = await db.select().from(itemCategories).limit(1);
+  const [unit] = await db.select().from(units).limit(1);
+  const [location] = await db.select().from(locations).limit(1);
+  if (!category || !unit || !location) {
+    throw new Error('マスターデータ（カテゴリ・単位・場所）が不足しています');
+  }
+
+  // household_itemsダミーデータ
+  const items: NewHouseholdItem[] = [
+    {
+      userId: loginUser.id,
+      categoryId: category.id,
+      unitId: unit.id,
+      locationId: location.id,
+      name: 'トイレットペーパー',
+      quantity: 8,
+      lowStockThreshold: 2,
+      purchasedAt: '2024-05-01',
+      expiresAt: '2024-12-31',
+      notifyBeforeDays: 3,
+      notifyEnabled: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      userId: loginUser.id,
+      categoryId: category.id,
+      unitId: unit.id,
+      locationId: location.id,
+      name: 'キッチンペーパー',
+      quantity: 2,
+      lowStockThreshold: 1,
+      purchasedAt: '2024-04-15',
+      expiresAt: '2024-07-15',
+      notifyBeforeDays: 3,
+      notifyEnabled: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+  await db.insert(householdItems).values(items);
+  console.log('✔ household_items ダミーデータを追加しました (loginユーザー用)');
 }
 
 main()

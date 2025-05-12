@@ -15,8 +15,6 @@ export function LoginStatus() {
       });
   }, []);
 
-  if (loading) return <p className="text-gray-500">判定中...</p>;
-
   return user
     ? <p className="text-green-600 font-semibold">hello {user.name} !</p>
     : null;

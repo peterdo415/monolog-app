@@ -8,21 +8,32 @@ export async function signIn(email: string, password: string) {
   // 本来はDB認証し、ユーザー情報を取得
   // ここでは仮でnameをemailの前半部分に
   const name = email.split('@')[0];
-  cookies().set(COOKIE_NAME, JSON.stringify({ name, email }), { httpOnly: true, path: '/' });
+  return { name, email };
 }
 
 export async function signOut() {
   // Cookie削除でセッションも削除
-  cookies().delete(COOKIE_NAME);
+  const cookieStore = await cookies();
+  cookieStore.delete(COOKIE_NAME);
 }
 
 export async function getSession(): Promise<Session> {
-  const value = cookies().get(COOKIE_NAME)?.value;
+  const cookieStore = await cookies();
+  const value = cookieStore.get(COOKIE_NAME)?.value;
   if (!value) return null;
   try {
     const user = JSON.parse(value);
-    return { user };
+    // 型安全性チェック
+    if (typeof user === 'object' && user && typeof user.name === 'string' && typeof user.email === 'string') {
+      return { user };
+    } else {
+      // 値が壊れている場合はCookieを削除
+      cookieStore.delete(COOKIE_NAME);
+      return null;
+    }
   } catch {
+    // パース失敗時もCookieを削除
+    cookieStore.delete(COOKIE_NAME);
     return null;
   }
 } 

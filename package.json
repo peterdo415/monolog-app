@@ -26,6 +26,10 @@
   "packageManager": "pnpm@10.10.0",
   "dependencies": {
     "@biomejs/biome": "^1.9.4",
-    "pg": "^8.15.6"
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.509.0",
+    "pg": "^8.15.6",
+    "tailwind-merge": "^3.3.0"
   }
 }

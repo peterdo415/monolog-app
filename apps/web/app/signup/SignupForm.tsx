@@ -24,7 +24,7 @@ export function SignupForm() {
       body: JSON.stringify({ name, email, password }),
     });
     if (res.ok) {
-      router.push('/');
+      router.push('/household');
     } else {
       setError('登録に失敗しました');
     }

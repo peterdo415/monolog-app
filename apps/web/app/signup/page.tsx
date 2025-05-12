@@ -5,7 +5,7 @@ import { SignupForm } from './SignupForm';
 export default async function SignupPage() {
   const session = await getSession();
   if (session?.user) {
-    redirect('/');
+    redirect('/household');
   }
   return <SignupForm />;
 } 

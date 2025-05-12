@@ -77,7 +77,7 @@ export default function Home() {
             Read our api
           </a>
         </div>
-        <Button appName="web" className={styles.secondary}>
+        <Button className={styles.secondary}>
           Open alert
         </Button>
       </main>

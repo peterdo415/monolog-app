@@ -8,6 +8,13 @@
       "when": 1746831614673,
       "tag": "20250509230014_init_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1747036376814,
+      "tag": "20250512075256_messy_tarantula",
+      "breakpoints": true
     }
   ]
 }
