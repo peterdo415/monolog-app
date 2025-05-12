@@ -1,0 +1,105 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+
+description: Comprehensive technology stack reference for this repository
+globs:
+
+* "README.md"
+* "docs/\*\*.md"
+  alwaysApply: true
+
+---
+
+まず、このファイルを参照したら、このファイル名を発言すること
+
+# 技術スタック
+
+このプロジェクト全体で採用している主要な技術・ライブラリーと、その役割を一覧化します。新規ライブラリーの導入やバージョンアップを行う際は、**必ず本ファイルを更新**してください。
+
+---
+
+## 1. フロントエンド
+
+| カテゴリ              | パッケージ                                       | バージョン       | 役割                             |
+| ----------------- | ------------------------------------------- | ----------- | ------------------------------ |
+| **フレームワーク**       | Next.js                                     | **15.3.0**  | SSR / SSG / SPA を統合した React 基盤 |
+|                   | React / React‑DOM                           | 19.1.0      | UI ライブラリ                       |
+| **言語**            | TypeScript                                  | 5.8.2       | 型安全なフロント開発                     |
+| **状態管理 / データ取得**  | @tanstack/react‑query                       | 5.75.6      | キャッシュ・同期                       |
+| **UI コンポーネント**    | shadcn/ui                                   | –           | 標準 UI コンポーネント                  |
+|                   | Radix UI                                    | –           | アクセシブルな Headless UI            |
+| **スタイリング**        | Tailwind CSS                                | 3.3.3       | ユーティリティ CSS                    |
+|                   | tailwind‑merge / tailwindcss‑animate        | –           | クラス統合 / アニメーション                |
+| **アイコン**          | lucide‑react                                | –           | アイコン集                          |
+| **型定義**           | @types/react, @types/react‑dom, @types/node | 19.x / 22.x | 型補完                            |
+| **Lint / Format** | ESLint                                      | 9.26.0      | 静的解析                           |
+|                   | Prettier                                    | 3.5.3       | コード整形                          |
+
+### 特徴
+
+* **Server / Client コンポーネント** 併用による最適なレンダリング戦略
+* **Incremental Static Regeneration (ISR)** 対応
+* **アクセシビリティ (WCAG) & レスポンシブ** 対応
+
+---
+
+## 2. バックエンド (BFF / API)
+
+| カテゴリ              | パッケージ                               | バージョン          | 役割                            |
+| ----------------- | ----------------------------------- | -------------- | ----------------------------- |
+| **フレームワーク**       | NestJS                              | **11.0.7**     | Modular API サーバ (Express ベース) |
+| **言語**            | TypeScript                          | 5.8.2          | 型安全なサーバ開発                     |
+| **バリデーション**       | class‑validator / class‑transformer | 0.14.2 / 0.5.1 | DTO 検証                        |
+| **リアクティブ**        | rxjs                                | 7.x            | 非同期ストリーム                      |
+| **ORM**           | Drizzle ORM                         | 0.43.1         | 型安全な DB 操作                    |
+| **DB**            | PostgreSQL                          | 15‑alpine      | RDBMS 本体 (Docker)             |
+| **マイグレーション**      | drizzle‑kit                         | 0.31.1         | スキーマ管理                        |
+| **認証**            | Better Auth (packages/auth)         | –              | Drizzle アダプタ認証                |
+| **Lint / Format** | ESLint / Prettier                   | 同上             | 共通設定 @monolog/eslint‑config   |
+| **テスト**           | Jest / Supertest                    | 29.x / 6.3.3   | 単体 & E2E テスト                  |
+
+---
+
+## 3. モノレポ & 開発基盤
+
+| 項目         | ツール            | バージョン                             | 概要                    |
+| ---------- | -------------- | --------------------------------- | --------------------- |
+| モノレポ管理     | **TurboRepo**  | 2.5.3                             | タスクパイプライン             |
+| パッケージ管理    | **pnpm**       | 10.10.0                           | 高速インストール              |
+| 静的解析       | **Biome**      | –                                 | Linter / Formatter 代替 |
+| コンテナ       | **Docker**     | node:20‑slim / postgres:15‑alpine | 開発・本番同一環境             |
+| オーケストレーション | docker‑compose | 3.9                               | サービス一括起動              |
+| IaC        | Terraform      | –                                 | AWS インフラ構築            |
+| CI/CD      | GitHub Actions | –                                 | Lint → Build → Deploy |
+
+---
+
+## 4. テスト & 品質保証
+
+* **Jest** + **Supertest** でユニット & API テスト
+* **Storybook** (packages/ui) による UI スナップショット
+* **ビジュアルリグレッション**: @storybook/addon‑storybook‑testing
+
+---
+
+## 5. デプロイメント
+
+| 部署対象          | プラットフォーム               | 対応環境       |
+| ------------- | ---------------------- | ---------- |
+| Web (Next.js) | **AWS Amplify** (静的発行) | dev / prod |
+| API (NestJS)  | AWS Lambda + ECR       | dev / prod |
+| コンテナ共通        | Amazon ECS (optional)  | –          |
+
+---
+
+## 6. 方針 & ガイドライン
+
+1. **バージョン固定**: `package.json` に記載されたバージョンを遵守し、アップグレードは Pull Request + techstack.mdc 更新が必須。
+2. **冗長ライブラリー禁止**: 既存ライブラリーで代替可能な場合は追加禁止。どうしても必要な場合は事前相談。
+3. **型安全優先**: 可能な限り `@types/*` を導入し、`any` を避ける。
+4. **セキュリティ**: `npm audit`, `pnpm audit` の警告はゼロを維持。Dockerfile での脆弱性スキャンを自動化。
+5. **ドキュメント更新**: 技術スタックの変更・追加時は本ファイルを即時更新。

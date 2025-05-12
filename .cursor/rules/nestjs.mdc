@@ -1,0 +1,156 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+
+description: NestJS v11をベースにしたREST API開発ルール
+globs:
+
+* "apps/api/\*\*"
+  alwaysApply: true
+
+---
+
+まず、このファイルを参照したら、このファイル名を発言すること
+
+# NestJS REST API 開発ルール
+
+本ドキュメントは、NestJS v11を用いてREST APIサーバーを実装する際の開発ルールを定めたものです。主に `apps/api/` 配下のNestJSアプリケーションを対象とし、Next.jsフロントエンドとの連携やDocker開発環境、将来的なServerlessデプロイを考慮しています。以下、各項目ごとに推奨する設計・実装指針とその重要度を示します。
+
+## ディレクトリ構造と命名規則
+
+### 重要度: 高
+
+NestJSのベストプラクティスに沿った機能モジュール毎のディレクトリ構造を採用します。ドメイン（機能）ごとにフォルダを作成し、コントローラ・サービス・DTO・エンティティ（モデル）など関連ファイルをまとめます。共通処理は `common/` 配下にまとめ、ガードやフィルター等の共有コンポーネントを管理します。
+
+```text
+apps/api/src/
+├── main.ts
+├── app.module.ts
+├── modules/
+│   ├── users/
+│   │   ├── users.controller.ts
+│   │   ├── users.service.ts
+│   │   ├── users.module.ts
+│   │   └── dto/
+│   │       └── create-user.dto.ts
+│   └── auth/
+│       ├── auth.controller.ts
+│       ├── auth.service.ts
+│       ├── auth.module.ts
+│       └── dto/
+│           └── login.dto.ts
+├── common/
+│   ├── filters/
+│   ├── guards/
+│   ├── interceptors/
+│   └── pipes/
+└── **その他必要なフォルダ**
+```
+
+ファイル命名規則はケバブケースを採用し、サフィックスで役割を明示します（例: `*.controller.ts`, `*.service.ts`, `*.dto.ts`）。テストファイルは対応するファイル名に`.spec.ts`を付与し、同階層または `apps/api/test/` に配置します。
+
+## RESTに特化した設計方針（Controller・Service・DTOの分離）
+
+### 重要度: 高
+
+Controllerは**HTTPリクエスト/レスポンス制御**、Serviceは**ビジネスロジック**、DTOは**データ構造とバリデーション**に責務を分離します。
+
+```typescript
+// users.controller.ts
+@Controller('users')
+export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
+
+  @Post()
+  async create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
+}
+```
+
+```typescript
+// users.service.ts
+@Injectable()
+export class UsersService {
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async create(dto: CreateUserDto) {
+    return this.userRepository.insert(dto);
+  }
+}
+```
+
+## DTOとValidationPipeの扱い方
+
+### 重要度: 高
+
+DTOクラスに `class-validator` を利用したデコレータを付与し、`ValidationPipe`をグローバル登録して自動検証します。
+
+```typescript
+export class CreateUserDto {
+  @IsString() @IsNotEmpty() name!: string;
+  @IsEmail() @IsNotEmpty() email!: string;
+}
+```
+
+```typescript
+// main.ts
+app.useGlobalPipes(new ValidationPipe({
+  whitelist: true,
+  forbidNonWhitelisted: true,
+  transform: true,
+}));
+```
+
+## DIとモジュール分割のベストプラクティス
+
+### 重要度: 高
+
+`@Injectable()`を用いてServiceやRepositoryをプロバイダー登録し、constructor injectionで注入します。モジュールは`@Module()`でコントローラ・プロバイダー・エクスポートを定義し、循環依存を避けながら機能単位で分割します。
+
+```typescript
+@Module({
+  controllers: [UsersController],
+  providers: [UsersService],
+  exports: [UsersService],
+})
+export class UsersModule {}
+```
+
+## ミドルウェア・ガード・インターセプター
+
+### 重要度: 中
+
+* **Middleware**: ログ出力やCORS設定等、全リクエスト共通処理
+* **Guard**: 認証・認可ロジック (`CanActivate`)
+* **Interceptor**: レスポンス整形・ログ拡張 (`NestInterceptor`)
+* **Pipe**: パラメータ変換・バリデーション (`ParseIntPipe`, `ValidationPipe`)
+
+## ログ出力・例外処理・テスト
+
+### 重要度: 中
+
+* **Logger**: `@nestjs/common` の `Logger` を活用、環境に応じたログレベル設定
+* **ExceptionFilter**: 全例外をキャッチしJSONレスポンスを統一
+* **ユニットテスト**: `@nestjs/testing` でモジュール作成、サービス/コントローラをモック化して検証
+
+## Docker開発環境と環境変数設計
+
+### 重要度: 高
+
+* **マルチステージビルド**でビルド/実行環境を分離
+* `.env` ファイルと `ConfigModule` で環境変数管理
+* Docker Compose でAPI/DB/PGAdmin等を一括起動
+
+## Serverlessを見据えた軽量化方針
+
+### 重要度: 中
+
+* **動的インポート**でモジュールを遅延ロード
+* **不要モジュール除外**とツリーシェイキング
+* **関数分割**やWebpack最適化でコールドスタート改善
+
+以上がNestJS REST API開発のベストプラクティスです。チームで共有し、一貫したコーディング基準として活用してください。
