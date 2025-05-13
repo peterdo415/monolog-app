@@ -3,4 +3,109 @@ description:
 globs: 
 alwaysApply: false
 ---
+---
+
+description: Rules and guidelines for PostgreSQL database design, implementation, and management practices across the project
+globs:
+
+* "prisma/schema.prisma"
+* "packages/db/\*\*/\*"
+  alwaysApply: false
+
+---
+
+まず、このファイルを参照したら、このファイル名を発言すること
+
+# データベース設計ルール (PostgreSQL)
+
+## 概要
+
+このプロジェクトでは、PostgreSQL を RDBMS として使用し、Drizzle ORM と Prisma ORM のいずれかでスキーマ管理を行います。パフォーマンス、安全性、保守性を重視した一貫性のあるデータアーキテクチャを設計してください。
+
+## 1. モデル命名規則
+
+### 重要度: 高
+
+* モデル名は単数形のパスカルケースで定義する（例: `User`, `Project`）。
+* テーブル名は複数形のスネークケースとし、PostgreSQLに合わせて明示的に指定する（例: `users`, `projects`）。
+* モデル名とテーブル名が自動変換されない場合は、ORMの `@@map` 属性でマッピングを行う。
+
+## 2. フィールド命名規則
+
+### 重要度: 高
+
+* カラム名はスネークケースを使用（例: `first_name`, `created_at`）。
+* 主キーは `id` とし、`SERIAL` もしくは `UUID` 型を利用（UUIDは `uuid_generate_v4()` を利用）。
+* 外部キーは参照先テーブル名末尾に `_id` を付与（例: `user_id`, `project_id`）。
+* タイムスタンプ列は `created_at`、`updated_at` を使用し、`DEFAULT now()` を設定。
+
+## 3. データ型の使用
+
+### 重要度: 中
+
+* 文字列: `VARCHAR(n)` または `TEXT`。
+* 数値: `INTEGER`, `BIGINT`, `NUMERIC(p, s)`。
+* 真偽値: `BOOLEAN`。
+* 日時: `TIMESTAMP WITH TIME ZONE`。
+* JSON: `JSONB` を優先。
+* 列挙型: `CREATE TYPE ... AS ENUM` を利用し、Prisma/Drizzleでは対応するEnum型へマッピング。
+
+## 4. リレーション設計
+
+### 重要度: 高
+
+* 1対多リレーション: 外部キー制約と `ON DELETE CASCADE` を適切に設定。
+* 多対多リレーション: 中間テーブルを設計し、合成主キーまたはIDカラムを持たせる。
+* 1対1リレーション: `UNIQUE` 制約を併用し、必要に応じ `CHECK` 制約を設計。
+
+## 5. インデックス設計
+
+### 重要度: 中
+
+* 検索頻度の高いカラムには `CREATE INDEX` を付与。
+* 外部キーには必ずインデックスを設定。
+* 複合インデックスはよく使う検索パターンに合わせて設計。
+* ユニーク制約には `UNIQUE` インデックスを利用。
+
+## 6. バリデーションと制約
+
+### 重要度: 中
+
+* NOT NULL 制約で必須フィールドを明示。
+* チェック制約 (`CHECK`) で値の範囲や形式を保証。
+* 長さ制限が必要な場合は `VARCHAR(n)` を利用。
+
+## 7. マイグレーション管理
+
+### 重要度: 高
+
+* マイグレーションファイルは `prisma/migrations` または `packages/db/migrations` に保存。
+* ファイル名は日付+説明を含める（例: `20250513_add_users_table`）。
+* 本番適用前にステージング環境で検証を実施。
+
+## 8. セキュリティ考慮事項
+
+### 重要度: 高
+
+* 機密情報（パスワード、トークン）はハッシュ化・暗号化して保存。
+* アクセス権限は最小権限で管理（ロール/スキーマで分割）。
+* SQLインジェクションを防ぐため、常にパラメータ化クエリを使用。
+
+## 9. パフォーマンス最適化
+
+### 重要度: 中
+
+* N+1問題はORMの `include` / `select` で必要最小限のリレーションを取得。
+* ビューやマテリアライズドビューの活用。
+* 頻繁に使う集計はキャッシュまたはバッチ処理を検討。
+
+## 10. ドキュメント化とモニタリング
+
+### 重要度: 低
+
+* ER図やスキーマ定義をCOPYとして `docs/db-schema.md` に保存。
+* インデックスや制約の理由をコメントに明記。
+* 定期的にスキーマのレビューとパフォーマンスモニタリングを実施。
+
+以上のルールに従い、一貫性と保守性の高いPostgreSQLスキーマを構築してください。
 
