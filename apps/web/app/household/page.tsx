@@ -1,59 +1,38 @@
-import { getSession } from '@monolog/auth';
-import { db, householdItems, itemCategories, units, locations, eq, InferSelectModel } from '@monolog/db';
+"use client";
+import { useState } from "react";
 import { Button, Card, CardContent, CardHeader, CardTitle, Plus } from "@monolog/ui";
 import { NavBar } from "../components/NavBar";
-// import { HouseholdForm } from "./HouseholdForm";
+import { HouseholdForm } from "./HouseholdForm";
 
-type ItemWithLabels = {
-  id: number;
-  name: string;
-  quantity: number;
-  lowStock: boolean;
-  expiresAt: string;
-  category: string;
-  unit: string;
-  location: string;
-};
+// 仮のデータ
+const dummyItems = [
+  {
+    id: 1,
+    name: "トイレットペーパー",
+    quantity: 8,
+    lowStock: false,
+    expiresAt: "2024-12-31",
+    category: "日用品",
+    unit: "個",
+    location: "キッチン",
+  },
+];
 
-export default async function HouseholdPage() {
-  const session = await getSession();
-  if (!session?.user) {
-    // SSRリダイレクト
-    return <div>ログインが必要です</div>;
-  }
+export default function HouseholdPage() {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState(dummyItems);
 
-  // household_itemsをJOINで取得
-  const items = await db.select({
-    id: householdItems.id,
-    name: householdItems.name,
-    quantity: householdItems.quantity,
-    lowStockThreshold: householdItems.lowStockThreshold,
-    expiresAt: householdItems.expiresAt,
-    category: itemCategories.label,
-    unit: units.label,
-    location: locations.label,
-  })
-    .from(householdItems)
-    .leftJoin(itemCategories, eq(householdItems.categoryId, itemCategories.id))
-    .leftJoin(units, eq(householdItems.unitId, units.id))
-    .leftJoin(locations, eq(householdItems.locationId, locations.id))
-    .where(eq(householdItems.userId, session.user.id));
-
-  // マスター取得
-  const categories = await db.select().from(itemCategories);
-  const unitList = await db.select().from(units);
-  const locationList = await db.select().from(locations);
-
-  const mappedItems: ItemWithLabels[] = items.map((item: any) => ({
-    id: item.id,
-    name: item.name,
-    quantity: item.quantity,
-    lowStock: item.quantity <= item.lowStockThreshold,
-    expiresAt: item.expiresAt ? String(item.expiresAt) : '',
-    category: item.category?.ja || '',
-    unit: item.unit?.ja || '',
-    location: item.location?.ja || '',
-  }));
+  // householdItems追加のダミー
+  const handleAdd = async (data: any) => {
+    setLoading(true);
+    // 本来はAPI経由で追加
+    setTimeout(() => {
+      setItems(prev => [...prev, { ...data, id: prev.length + 1, lowStock: false, expiresAt: "", category: "", unit: "", location: "" }]);
+      setLoading(false);
+      setOpen(false);
+    }, 800);
+  };
 
   return (
     <>
@@ -61,16 +40,15 @@ export default async function HouseholdPage() {
       <main className="max-w-4xl mx-auto py-10 px-4" style={{ marginTop: '64px' }}>
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold">日用品管理</h1>
-          {/* 新規追加はサーバーアクションで実装予定 */}
-          <Button variant="default" size="sm" disabled>
+          <Button variant="default" size="sm" onClick={() => setOpen(true)}>
             <Plus className="w-4 h-4 mr-2" /> 新規追加
           </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {mappedItems.length === 0 ? (
+          {items.length === 0 ? (
             <div className="col-span-2 text-center text-gray-500 py-12">データがありません</div>
           ) : (
-            mappedItems.map((item) => (
+            items.map((item) => (
               <Card key={item.id} className="relative group">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
@@ -100,8 +78,7 @@ export default async function HouseholdPage() {
             ))
           )}
         </div>
-        {/* 新規追加フォームはサーバーアクション化して後続対応 */}
-        {/* <HouseholdForm categories={categories} units={unitList} locations={locationList} /> */}
+        <HouseholdForm open={open} onOpenChange={setOpen} onSubmit={handleAdd} loading={loading} />
       </main>
     </>
   );
