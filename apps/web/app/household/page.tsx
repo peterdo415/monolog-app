@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
-import { Button, Card, CardContent, CardHeader, CardTitle, Plus, Pencil } from "@monolog/ui";
+import { Button, Card, CardContent, CardHeader, CardTitle, Plus, Pencil, Trash2 } from "@monolog/ui";
 import { NavBar } from "../components/NavBar";
 import { HouseholdForm } from "./HouseholdForm";
 import { useModal } from "../hooks/useModal";
+import { Modal } from "../components/Modal";
 
 // 仮のデータ
 const dummyItems = [
@@ -25,6 +26,8 @@ export default function HouseholdPage() {
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState(dummyItems);
   const [editItem, setEditItem] = useState<any | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   // householdItems追加のダミー
   const handleAdd = async (data: any) => {
@@ -53,6 +56,18 @@ export default function HouseholdPage() {
     openEditModal();
   };
 
+  const handleDeleteClick = (item: any) => {
+    setDeleteTarget(item);
+    setDeleteOpen(true);
+  };
+
+  const handleDelete = () => {
+    if (!deleteTarget) return;
+    setItems(prev => prev.filter(item => item.id !== deleteTarget.id));
+    setDeleteOpen(false);
+    setDeleteTarget(null);
+  };
+
   return (
     <>
       <NavBar />
@@ -78,6 +93,9 @@ export default function HouseholdPage() {
                       )}
                       <Button size="icon" variant="ghost" onClick={() => handleEditClick(item)} aria-label="編集">
                         <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button size="icon" variant="ghost" onClick={() => handleDeleteClick(item)} aria-label="削除">
+                        <Trash2 className="w-4 h-4 text-red-500" />
                       </Button>
                     </div>
                   </CardTitle>
@@ -112,6 +130,15 @@ export default function HouseholdPage() {
             initialData={editItem}
           />
         )}
+        <Modal open={deleteOpen} onClose={() => setDeleteOpen(false)}>
+          <div className="text-center">
+            <h2 className="text-lg font-bold mb-4">本当に削除しますか？</h2>
+            <div className="flex justify-center gap-4 mt-6">
+              <Button variant="ghost" onClick={() => setDeleteOpen(false)}>キャンセル</Button>
+              <Button variant="destructive" onClick={handleDelete}>削除する</Button>
+            </div>
+          </div>
+        </Modal>
       </main>
     </>
   );

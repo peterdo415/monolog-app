@@ -6,3 +6,4 @@ export * from "./input.js";
 export { cn } from './utils.js';
 export { Plus } from 'lucide-react';
 export { Pencil } from "lucide-react";
+export { Trash2 } from "lucide-react";
