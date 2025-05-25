@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button, Card, CardContent, CardHeader, CardTitle, Plus } from "@monolog/ui";
 import { NavBar } from "../components/NavBar";
 import { HouseholdForm } from "./HouseholdForm";
+import { useModal } from "../hooks/useModal";
 
 // 仮のデータ
 const dummyItems = [
@@ -19,7 +20,7 @@ const dummyItems = [
 ];
 
 export default function HouseholdPage() {
-  const [open, setOpen] = useState(false);
+  const { open, openModal, closeModal } = useModal();
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState(dummyItems);
 
@@ -30,7 +31,7 @@ export default function HouseholdPage() {
     setTimeout(() => {
       setItems(prev => [...prev, { ...data, id: prev.length + 1, lowStock: false, expiresAt: "", category: "", unit: "", location: "" }]);
       setLoading(false);
-      setOpen(false);
+      closeModal();
     }, 800);
   };
 
@@ -40,7 +41,7 @@ export default function HouseholdPage() {
       <main className="max-w-4xl mx-auto py-10 px-4" style={{ marginTop: '64px' }}>
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold">日用品管理</h1>
-          <Button variant="default" size="sm" onClick={() => setOpen(true)}>
+          <Button variant="default" size="sm" onClick={openModal}>
             <Plus className="w-4 h-4 mr-2" /> 新規追加
           </Button>
         </div>
@@ -78,7 +79,7 @@ export default function HouseholdPage() {
             ))
           )}
         </div>
-        <HouseholdForm open={open} onOpenChange={setOpen} onSubmit={handleAdd} loading={loading} />
+        <HouseholdForm open={open} onOpenChange={v => v ? openModal() : closeModal()} onSubmit={handleAdd} loading={loading} />
       </main>
     </>
   );

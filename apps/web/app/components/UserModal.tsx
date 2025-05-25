@@ -19,7 +19,10 @@ export function UserModal({ onSubmit, onClose }: Props) {
   };
 
   return ReactDOM.createPortal(
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center animate-fade-in">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center animate-fade-in"
+      style={{ background: '#000', opacity: 1 }}
+    >
       <div className="bg-white w-full max-w-md p-8 rounded-2xl shadow-2xl border border-gray-100 relative">
         <button
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold focus:outline-none"

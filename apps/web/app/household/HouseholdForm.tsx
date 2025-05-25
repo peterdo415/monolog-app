@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Button } from "@monolog/ui";
+import { Modal } from "../components/Modal";
+import { Input, Button } from "@monolog/ui";
 
 // 仮のマスター値（本来はAPI取得）
 const categories = [
@@ -50,49 +51,45 @@ export function HouseholdForm({ open, onOpenChange, onSubmit, loading }: {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md w-full">
-        <DialogHeader>
-          <DialogTitle>日用品を追加</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">名前<span className="text-red-500">*</span></label>
-            <Input name="name" value={form.name} onChange={handleChange} required maxLength={100} autoFocus />
+    <Modal open={open} onClose={() => onOpenChange(false)}>
+      <h2 className="text-2xl font-bold mb-6 text-center">日用品を追加</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">名前<span className="text-red-500">*</span></label>
+          <Input name="name" value={form.name} onChange={handleChange} required maxLength={100} autoFocus />
+        </div>
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <label className="block text-sm font-medium mb-1">カテゴリ</label>
+            <select name="categoryId" value={form.categoryId} onChange={handleChange} className="w-full border rounded px-2 py-1">
+              {categories.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+            </select>
           </div>
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <label className="block text-sm font-medium mb-1">カテゴリ</label>
-              <select name="categoryId" value={form.categoryId} onChange={handleChange} className="w-full border rounded px-2 py-1">
-                {categories.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
-              </select>
-            </div>
-            <div className="flex-1">
-              <label className="block text-sm font-medium mb-1">単位</label>
-              <select name="unitId" value={form.unitId} onChange={handleChange} className="w-full border rounded px-2 py-1">
-                {units.map(u => <option key={u.id} value={u.id}>{u.label}</option>)}
-              </select>
-            </div>
+          <div className="flex-1">
+            <label className="block text-sm font-medium mb-1">単位</label>
+            <select name="unitId" value={form.unitId} onChange={handleChange} className="w-full border rounded px-2 py-1">
+              {units.map(u => <option key={u.id} value={u.id}>{u.label}</option>)}
+            </select>
           </div>
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <label className="block text-sm font-medium mb-1">数量</label>
-              <Input name="quantity" type="number" min={1} value={form.quantity} onChange={handleChange} required />
-            </div>
-            <div className="flex-1">
-              <label className="block text-sm font-medium mb-1">場所</label>
-              <select name="locationId" value={form.locationId} onChange={handleChange} className="w-full border rounded px-2 py-1">
-                {locations.map(l => <option key={l.id} value={l.id}>{l.label}</option>)}
-              </select>
-            </div>
+        </div>
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <label className="block text-sm font-medium mb-1">数量</label>
+            <Input name="quantity" type="number" min={1} value={form.quantity} onChange={handleChange} required />
           </div>
-          {error && <div className="text-red-500 text-sm mt-1">{error}</div>}
-          <DialogFooter className="mt-4 flex justify-end gap-2">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>キャンセル</Button>
-            <Button type="submit" variant="default" disabled={loading}>{loading ? "追加中..." : "追加"}</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+          <div className="flex-1">
+            <label className="block text-sm font-medium mb-1">場所</label>
+            <select name="locationId" value={form.locationId} onChange={handleChange} className="w-full border rounded px-2 py-1">
+              {locations.map(l => <option key={l.id} value={l.id}>{l.label}</option>)}
+            </select>
+          </div>
+        </div>
+        {error && <div className="text-red-500 text-sm mt-1">{error}</div>}
+        <div className="mt-4 flex justify-end gap-2">
+          <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>キャンセル</Button>
+          <Button type="submit" variant="default" disabled={loading}>{loading ? "追加中..." : "追加"}</Button>
+        </div>
+      </form>
+    </Modal>
   );
 } 
