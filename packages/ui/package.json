@@ -2,6 +2,7 @@
   "name": "@monolog/ui",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,11 +10,13 @@
     ".": {
       "import": "./dist/index.js",
       "require": "./dist/index.js",
-      "types":   "./dist/index.d.ts"
+      "types": "./dist/index.d.ts"
     },
     "./button": {}
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc --build",
     "lint": "eslint . --max-warnings 0",
@@ -21,8 +24,10 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@monolog/db": "workspace:^",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-draggable": "^4.4.6"
   },
   "devDependencies": {
     "@monolog/eslint-config": "*",

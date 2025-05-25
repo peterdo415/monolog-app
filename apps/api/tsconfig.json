@@ -8,16 +8,13 @@
     ],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "module": "CommonJS",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "strict": true,
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "baseUrl": ".",
-    "paths": {
-      "@monolog/db/*": ["../../packages/db/src/*"],
-      "@monolog/api/*": ["src/*"]
-    },
-    "skipLibCheck": true,
+    "skipLibCheck": true
   },
   "references": [
     {
@@ -25,7 +22,7 @@
     }
   ],
   "include": [
-    "src/**/*.ts",
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules",

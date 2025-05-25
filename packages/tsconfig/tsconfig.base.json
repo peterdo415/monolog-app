@@ -2,20 +2,13 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "NodeNext",
-    "moduleResolution": "node",
+    "moduleResolution": "NodeNext",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noUncheckedIndexedAccess": true,
-    "baseUrl": ".",
-    "paths": {
-      "@monolog/db/client": ["packages/db/src/client.ts"],
-      "@monolog/db/schema": ["packages/db/src/schema/index.ts"],
-      "@monolog/db/types": ["packages/db/src/index.ts"],
-      "@monolog/api/dto/*": ["apps/api/src/dto/*"],
-      "@monolog/ui": ["packages/ui/dist/index.js"]
-    }
+    "baseUrl": "."
   }
 }

@@ -2,7 +2,7 @@
 import { Injectable, Logger, InternalServerErrorException } from '@nestjs/common';
 import { db }                from '@monolog/db/client';
 import { users }             from '@monolog/db/schema';
-import type { CreateUserDto } from '@monolog/api/dto/create-user.dto';
+import type { CreateUserDto } from '../../dto/create-user.dto.js';
 import type { User }         from '@monolog/db/types';
 
 

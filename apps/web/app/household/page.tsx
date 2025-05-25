@@ -1,48 +1,58 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { getSession } from '@monolog/auth';
+import { db, householdItems, itemCategories, units, locations, eq, InferSelectModel } from '@monolog/db';
 import { Button, Card, CardContent, CardHeader, CardTitle, Plus } from "@monolog/ui";
 import { NavBar } from "../components/NavBar";
-import { db, householdItems, itemCategories, units, locations, users } from '@monolog/db';
-import { eq } from 'drizzle-orm';
-import { cookies } from 'next/headers';
+// import { HouseholdForm } from "./HouseholdForm";
 
-export default function HouseholdPage() {
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
-  const [items, setItems] = useState([]);
-  const router = useRouter();
+type ItemWithLabels = {
+  id: number;
+  name: string;
+  quantity: number;
+  lowStock: boolean;
+  expiresAt: string;
+  category: string;
+  unit: string;
+  location: string;
+};
 
-  useEffect(() => {
-    fetch('/api/auth/session')
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (!data?.user) {
-          router.replace('/login');
-        } else {
-          setUser(data.user);
-          // householdアイテムも取得
-          fetch('/api/household')
-            .then(res => res.ok ? res.json() : [])
-            .then(setItems);
-        }
-        setLoading(false);
-      });
-  }, [router]);
+export default async function HouseholdPage() {
+  const session = await getSession();
+  if (!session?.user) {
+    // SSRリダイレクト
+    return <div>ログインが必要です</div>;
+  }
 
-  if (loading) return <div>Loading...</div>;
-  if (!user) return null;
+  // household_itemsをJOINで取得
+  const items = await db.select({
+    id: householdItems.id,
+    name: householdItems.name,
+    quantity: householdItems.quantity,
+    lowStockThreshold: householdItems.lowStockThreshold,
+    expiresAt: householdItems.expiresAt,
+    category: itemCategories.label,
+    unit: units.label,
+    location: locations.label,
+  })
+    .from(householdItems)
+    .leftJoin(itemCategories, eq(householdItems.categoryId, itemCategories.id))
+    .leftJoin(units, eq(householdItems.unitId, units.id))
+    .leftJoin(locations, eq(householdItems.locationId, locations.id))
+    .where(eq(householdItems.userId, session.user.id));
 
-  const mappedItems = items.map(item => ({
+  // マスター取得
+  const categories = await db.select().from(itemCategories);
+  const unitList = await db.select().from(units);
+  const locationList = await db.select().from(locations);
+
+  const mappedItems: ItemWithLabels[] = items.map((item: any) => ({
     id: item.id,
     name: item.name,
     quantity: item.quantity,
     lowStock: item.quantity <= item.lowStockThreshold,
     expiresAt: item.expiresAt ? String(item.expiresAt) : '',
-    category: (item.category as { ja?: string })?.ja || '',
-    unit: (item.unit as { ja?: string })?.ja || '',
-    location: (item.location as { ja?: string })?.ja || '',
+    category: item.category?.ja || '',
+    unit: item.unit?.ja || '',
+    location: item.location?.ja || '',
   }));
 
   return (
@@ -51,7 +61,8 @@ export default function HouseholdPage() {
       <main className="max-w-4xl mx-auto py-10 px-4" style={{ marginTop: '64px' }}>
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold">日用品管理</h1>
-          <Button variant="default" size="sm">
+          {/* 新規追加はサーバーアクションで実装予定 */}
+          <Button variant="default" size="sm" disabled>
             <Plus className="w-4 h-4 mr-2" /> 新規追加
           </Button>
         </div>
@@ -59,7 +70,7 @@ export default function HouseholdPage() {
           {mappedItems.length === 0 ? (
             <div className="col-span-2 text-center text-gray-500 py-12">データがありません</div>
           ) : (
-            mappedItems.map((item: any) => (
+            mappedItems.map((item) => (
               <Card key={item.id} className="relative group">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
@@ -84,21 +95,13 @@ export default function HouseholdPage() {
                       <span className="font-medium">期限:</span> {item.expiresAt}
                     </div>
                   </div>
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
-                    <Button size="icon" variant="ghost" className="mr-2">
-                      <span className="sr-only">編集</span>
-                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536M9 11l6 6M3 21h6v-6l9.293-9.293a1 1 0 0 0-1.414-1.414L9 13.586V21z"/></svg>
-                    </Button>
-                    <Button size="icon" variant="destructive">
-                      <span className="sr-only">削除</span>
-                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 6h18M9 6v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V6m-6 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
             ))
           )}
         </div>
+        {/* 新規追加フォームはサーバーアクション化して後続対応 */}
+        {/* <HouseholdForm categories={categories} units={unitList} locations={locationList} /> */}
       </main>
     </>
   );

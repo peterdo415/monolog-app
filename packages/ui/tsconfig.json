@@ -7,8 +7,14 @@
     "module": "NodeNext",
     "target": "ESNext",
     "jsx": "react-jsx",
-    "moduleResolution": "node16",
-    "skipLibCheck": true
+    "moduleResolution": "NodeNext",
+    "skipLibCheck": true,
+    "paths": {
+      "@monolog/db": ["../db/src/index.ts"],
+      "@monolog/db/*": ["../db/src/*"],
+      "@monolog/db/schema": ["../db/src/schema/index.ts"],
+      "@monolog/ui": ["./src/index.ts"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

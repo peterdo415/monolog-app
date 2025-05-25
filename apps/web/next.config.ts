@@ -12,8 +12,8 @@ const nextConfig: NextConfig = {
     // モノレポ内パスエイリアス
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@monolog/db':  join(__dirname, '../../packages/db/src'),
-      '@monolog/ui':  join(__dirname, '../../packages/ui/src'),
+      '@monolog/db':  join(__dirname, '../../packages/db/dist'),
+      '@monolog/ui':  join(__dirname, '../../packages/ui/dist'),
     };
     return config;
   },

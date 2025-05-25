@@ -29,8 +29,6 @@ const ThemeImage = (props: Props) => {
   );
 };
 
-const BASE = process.env.NEXT_PUBLIC_API_URL;
-
 export default function Home() {
   return (
     <div className={styles.page}>

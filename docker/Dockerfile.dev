@@ -25,6 +25,7 @@ WORKDIR /app
 # API／DB／TS 設定のみコピー
 COPY ../apps/api       ./apps/api
 COPY ../packages/db    ./packages/db
+COPY ../packages/auth  ./packages/auth
 COPY ../packages/typescript-config ./packages/typescript-config
 COPY ../packages/eslint-config       ./packages/eslint-config
 
@@ -55,8 +56,15 @@ CMD ["pnpm", "run", "dev"]
 ### 4) マイグレーション実行ステージ ###
 FROM deps AS migrator
 
-# 依存解決済みなのでコードだけコピー
 COPY .. .
+
+# ホストのnode_modulesを削除（コンテナ内でpnpm installする前に）
+RUN rm -rf node_modules */node_modules */*/node_modules apps/*/node_modules packages/*/node_modules
+
+WORKDIR /app/packages/db
+
+# 依存を再インストール
+RUN pnpm install
 
 # Postgres 側の host ツール (nc) を入れる
 USER root
@@ -64,12 +72,11 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends netcat-openbsd \
  && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app/packages/db
-
 # DB の 5432 ポートが open になるまで待ってから migrate
 ENTRYPOINT ["sh", "-c", "\
   echo '⏳ Waiting for DB…'; \
   until nc -z db 5432; do sleep 1; done; \
   echo '✅ DB is up, running migrations'; \
-  pnpm exec drizzle-kit migrate \
+  pnpm exec drizzle-kit migrate; \
+  pnpm exec drizzle-kit push --yes; \
 "]

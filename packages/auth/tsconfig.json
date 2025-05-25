@@ -1,25 +1,21 @@
+// packages/auth/tsconfig.json
 {
   "extends": "../../packages/tsconfig/tsconfig.base.json",
   "compilerOptions": {
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "verbatimModuleSyntax": false,
     "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "declarationDir": "dist",
     "outDir": "dist",
     "rootDir": "src",
-    "types": ["node", "dotenv"],
+    "types": ["node"],
     "paths": {
-      "@monolog/ui": ["./dist/index.ts"],
-      "@monolog/db": ["./dist/index.js"],
-      "@monolog/db/*": ["./dist/*"],
-      "@monolog/db/schema": ["./dist/schema/index.js"],
-      "@monolog/db/types": ["./dist/types/index.js"]
+      "@monolog/auth": ["./src/index.ts"],
+      "@monolog/auth/*": ["./src/*"]
     },
     "skipLibCheck": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

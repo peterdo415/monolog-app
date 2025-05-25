@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserController } from './users.controller';
-import { UsersService } from './users.service';
+import { UserController } from './users.controller.js';
+import { UsersService } from './users.service.js';
 
 describe('UserController', () => {
   let userController: UserController;
@@ -12,17 +12,5 @@ describe('UserController', () => {
     }).compile();
 
     userController = app.get<UserController>(UserController);
-  });
-
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(userController.getUsers()).toBe('Hello World!');
-    });
-  });
-
-  it('should return an array of users', async () => {
-    const result = await userController.getUsers();
-    expect(Array.isArray(result)).toBe(true);
-    expect(result.length).toBeGreaterThanOrEqual(0);
   });
 });

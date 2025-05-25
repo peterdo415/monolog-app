@@ -13,6 +13,8 @@
     "seed:db": "pnpm --filter @monolog/db run seed"
   },
   "dependencies": {
+    "@monolog/db": "workspace:*",
+    "@monolog/auth": "workspace:*",
     "@nestjs/common": "^11.0.7",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.7",
@@ -22,7 +24,8 @@
     "dotenv": "^16.4.5",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.0.0",
-    "tsconfig-paths": "^4.2.0"
+    "tsconfig-paths": "^4.2.0",
+    "drizzle-kit": "^0.x"
   },
   "devDependencies": {
     "@monolog/eslint-config": "workspace:*",
@@ -38,5 +41,6 @@
     "supertest": "^6.3.3",
     "ts-node": "^10.9.1",
     "typescript": "5.8.2"
-  }
+  },
+  "type": "module"
 }

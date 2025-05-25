@@ -1,10 +1,11 @@
 {
   "extends": "../../packages/tsconfig/tsconfig.base.json",
   "compilerOptions": {
-    "moduleResolution": "node",
-    "module": "ESNext",
+    "moduleResolution": "NodeNext",
+    "module": "NodeNext",
     "jsx": "preserve",
     "incremental": true,
+    "rootDir": "src",
     "outDir": ".next",
     "target": "ES2022",
     "strict": true,
@@ -23,11 +24,6 @@
     "skipLibCheck": true,
     "types": ["next", "react", "react-dom"],
     "baseUrl": ".",
-    "paths": {
-      "@monolog/db": ["../../packages/db/src"],
-      "@monolog/ui": ["../../packages/ui/src"],
-      "@monolog/db/types": ["../../packages/db/src/types"]
-    }
   },
   "include": [
     "**/*.ts",
