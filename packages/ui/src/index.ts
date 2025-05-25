@@ -5,3 +5,4 @@ export * from "./dialog.js";
 export * from "./input.js";
 export { cn } from './utils.js';
 export { Plus } from 'lucide-react';
+export { Pencil } from "lucide-react";

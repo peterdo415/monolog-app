@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@monolog/db": "workspace:^",
+    "lucide-react": "^0.509.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-draggable": "^4.4.6"

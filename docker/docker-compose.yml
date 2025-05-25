@@ -44,6 +44,7 @@ services:
     working_dir: /app/apps/web
     volumes:
       - ../:/app:cached
+      - web_node_modules:/app/apps/web/node_modules # uiを追加した時に即時反映できるように
     env_file:
       - ../.env
     environment:
@@ -68,3 +69,4 @@ services:
 volumes:
   db-data:
   api_node_modules:
+  web_node_modules:

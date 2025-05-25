@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Button, Card, CardContent, CardHeader, CardTitle, Plus } from "@monolog/ui";
+import { Button, Card, CardContent, CardHeader, CardTitle, Plus, Pencil } from "@monolog/ui";
 import { NavBar } from "../components/NavBar";
 import { HouseholdForm } from "./HouseholdForm";
 import { useModal } from "../hooks/useModal";
@@ -21,8 +21,10 @@ const dummyItems = [
 
 export default function HouseholdPage() {
   const { open, openModal, closeModal } = useModal();
+  const { open: editOpen, openModal: openEditModal, closeModal: closeEditModal } = useModal();
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState(dummyItems);
+  const [editItem, setEditItem] = useState<any | null>(null);
 
   // householdItems追加のダミー
   const handleAdd = async (data: any) => {
@@ -33,6 +35,22 @@ export default function HouseholdPage() {
       setLoading(false);
       closeModal();
     }, 800);
+  };
+
+  // householdItems編集のダミー
+  const handleEdit = async (data: any) => {
+    setLoading(true);
+    setTimeout(() => {
+      setItems(prev => prev.map(item => item.id === editItem.id ? { ...item, ...data } : item));
+      setLoading(false);
+      closeEditModal();
+      setEditItem(null);
+    }, 800);
+  };
+
+  const handleEditClick = (item: any) => {
+    setEditItem(item);
+    openEditModal();
   };
 
   return (
@@ -54,9 +72,14 @@ export default function HouseholdPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span>{item.name}</span>
-                    {item.lowStock && (
-                      <span className="text-xs text-red-500 ml-2">在庫少</span>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {item.lowStock && (
+                        <span className="text-xs text-red-500 ml-2">在庫少</span>
+                      )}
+                      <Button size="icon" variant="ghost" onClick={() => handleEditClick(item)} aria-label="編集">
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -80,6 +103,15 @@ export default function HouseholdPage() {
           )}
         </div>
         <HouseholdForm open={open} onOpenChange={v => v ? openModal() : closeModal()} onSubmit={handleAdd} loading={loading} />
+        {editItem && (
+          <HouseholdForm
+            open={editOpen}
+            onOpenChange={v => v ? openEditModal() : closeEditModal()}
+            onSubmit={handleEdit}
+            loading={loading}
+            initialData={editItem}
+          />
+        )}
       </main>
     </>
   );

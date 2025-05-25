@@ -180,5 +180,11 @@ interface CardProps {
 * Props の型定義
 * デザインシステムのガイドライン
 
+5. UIの追加
+
+* pnpm add <追加するUI>
+* packages/ui/src/indexでexport
+* pnpm --filter @monolog/ui build
+
 これらのルールは、プロジェクトの一貫性と保守性を確保するために重要です。
 変更が必要な場合は、必ずチームでの承認プロセスを経てください。

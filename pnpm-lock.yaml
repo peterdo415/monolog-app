@@ -178,6 +178,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.75.6
         version: 5.77.0(react@19.1.0)
+      lucide-react:
+        specifier: ^0.509.0
+        version: 0.509.0(react@19.1.0)
       next:
         specifier: ^15.3.0
         version: 15.3.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -307,6 +310,9 @@ importers:
       '@monolog/db':
         specifier: workspace:^
         version: link:../db
+      lucide-react:
+        specifier: ^0.509.0
+        version: 0.509.0(react@19.1.0)
       react:
         specifier: ^19.1.0
         version: 19.1.0

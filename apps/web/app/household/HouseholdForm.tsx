@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Modal } from "../components/Modal";
 import { Input, Button } from "@monolog/ui";
 
@@ -20,20 +20,33 @@ const locations = [
   { id: 3, label: "リビング" },
 ];
 
-export function HouseholdForm({ open, onOpenChange, onSubmit, loading }: {
+export function HouseholdForm({ open, onOpenChange, onSubmit, loading, initialData }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onSubmit: (data: any) => Promise<void>;
   loading?: boolean;
+  initialData?: any;
 }) {
   const [form, setForm] = useState({
-    name: "",
-    categoryId: categories.length > 0 ? categories[0].id : 1,
-    unitId: units.length > 0 ? units[0].id : 1,
-    locationId: locations.length > 0 ? locations[0].id : 1,
-    quantity: 1,
+    name: initialData?.name ?? "",
+    categoryId: initialData?.categoryId ?? (categories.length > 0 ? categories[0].id : 1),
+    unitId: initialData?.unitId ?? (units.length > 0 ? units[0].id : 1),
+    locationId: initialData?.locationId ?? (locations.length > 0 ? locations[0].id : 1),
+    quantity: initialData?.quantity ?? 1,
   });
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (initialData) {
+      setForm({
+        name: initialData.name ?? "",
+        categoryId: initialData.categoryId ?? (categories.length > 0 ? categories[0].id : 1),
+        unitId: initialData.unitId ?? (units.length > 0 ? units[0].id : 1),
+        locationId: initialData.locationId ?? (locations.length > 0 ? locations[0].id : 1),
+        quantity: initialData.quantity ?? 1,
+      });
+    }
+  }, [initialData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -87,7 +100,7 @@ export function HouseholdForm({ open, onOpenChange, onSubmit, loading }: {
         {error && <div className="text-red-500 text-sm mt-1">{error}</div>}
         <div className="mt-4 flex justify-end gap-2">
           <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>キャンセル</Button>
-          <Button type="submit" variant="default" disabled={loading}>{loading ? "追加中..." : "追加"}</Button>
+          <Button type="submit" variant="default" disabled={loading}>{loading ? (initialData ? "変更中..." : "追加中...") : (initialData ? "変更" : "追加")}</Button>
         </div>
       </form>
     </Modal>
