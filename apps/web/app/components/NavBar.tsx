@@ -17,7 +17,7 @@ function AuthNav() {
 
   const handleLogout = async () => {
     await fetch('/api/auth/signout', { method: 'POST' });
-    location.reload();
+    router.push('/');
   };
 
   if (user) {

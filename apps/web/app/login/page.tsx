@@ -4,8 +4,7 @@ import { LoginForm } from './LoginForm';
 
 export default async function LoginPage() {
   const session = await getSession();
-  // デバッグ用: サーバー側でsessionの内容を出力
-  console.log('login page session:', session);
+  
   if (session?.user) {
     redirect('/household');
   }

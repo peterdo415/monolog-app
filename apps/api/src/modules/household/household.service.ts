@@ -19,6 +19,17 @@ interface HouseholdItemWithRelations extends HouseholdItem {
 @Injectable()
 export class HouseholdService {
   async create(dto: CreateHouseholdDto) {
+    // 型チェック&キャスト
+    ["categoryId", "unitId", "locationId", "quantity"].forEach((key) => {
+      const value = dto[key];
+      if (typeof value !== "number") {
+        if (/^\d+$/.test(String(value))) {
+          dto[key] = Number(value);
+        } else {
+          throw new BadRequestException(`${key}は数値で入力してください`);
+        }
+      }
+    });
     // userEmailからuserId取得
     const user = await db.select().from(users).where(eq(users.email, dto.userEmail)).then((rows: any[]) => rows[0]);
     if (!user) throw new BadRequestException('ユーザーが見つかりません');
@@ -26,10 +37,10 @@ export class HouseholdService {
     const [item] = await db.insert(householdItems).values({
       userId: user.id,
       name: dto.name,
-      categoryId: Number(dto.categoryId),
-      unitId: Number(dto.unitId),
-      locationId: Number(dto.locationId),
-      quantity: Number(dto.quantity),
+      categoryId: dto.categoryId,
+      unitId: dto.unitId,
+      locationId: dto.locationId,
+      quantity: dto.quantity,
       // 必要に応じて他のカラムも追加
     }).returning();
     return item;
@@ -67,5 +78,44 @@ export class HouseholdService {
       .leftJoin(locations, eq(householdItems.locationId, locations.id))
       .where(eq(householdItems.userId, user.id));
     return items;
+  }
+
+  async update(id: number, dto: any) {
+    ["categoryId", "unitId", "locationId", "quantity"].forEach((key) => {
+      const value = dto[key];
+      if (typeof value !== "number") {
+        if (/^\d+$/.test(String(value))) {
+          dto[key] = Number(value);
+        } else {
+          throw new BadRequestException(`${key}は数値で入力してください`);
+        }
+      }
+    });
+    // householdItemsのidで該当レコードを更新
+    const [item] = await db.update(householdItems)
+      .set({
+        name: dto.name,
+        categoryId: dto.categoryId,
+        unitId: dto.unitId,
+        locationId: dto.locationId,
+        quantity: dto.quantity,
+        // 必要に応じて他のカラムも追加
+        updatedAt: new Date(),
+      })
+      .where(eq(householdItems.id, id))
+      .returning();
+    return item;
+  }
+
+  async remove(id: number, userEmail: string) {
+    // userEmailからuserId取得
+    const user = await db.select().from(users).where(eq(users.email, userEmail)).then((rows: any[]) => rows[0]);
+    if (!user) throw new BadRequestException('ユーザーが見つかりません');
+    // household_itemがそのユーザーのものかチェック
+    const item = await db.select().from(householdItems).where(eq(householdItems.id, id)).then((rows: any[]) => rows[0]);
+    if (!item || item.userId !== user.id) throw new BadRequestException('権限がありません');
+    // 削除
+    const [deleted] = await db.delete(householdItems).where(eq(householdItems.id, id)).returning();
+    return deleted;
   }
 } 

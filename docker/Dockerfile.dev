@@ -66,10 +66,10 @@ WORKDIR /app/packages/db
 # 依存を再インストール
 RUN pnpm install
 
-# Postgres 側の host ツール (nc) を入れる
+# Postgres 側の host ツール (nc, psql) を入れる
 USER root
 RUN apt-get update \
- && apt-get install -y --no-install-recommends netcat-openbsd \
+ && apt-get install -y --no-install-recommends netcat-openbsd postgresql-client \
  && rm -rf /var/lib/apt/lists/*
 
 # DB の 5432 ポートが open になるまで待ってから migrate
@@ -79,4 +79,5 @@ ENTRYPOINT ["sh", "-c", "\
   echo '✅ DB is up, running migrations'; \
   pnpm exec drizzle-kit migrate; \
   pnpm exec drizzle-kit push --yes; \
+  PGPASSWORD=$POSTGRES_PASSWORD psql -h db -U $POSTGRES_USER -d $POSTGRES_DB -f /docker-entrypoint-initdb.d/init-seed-data.sql; \
 "]

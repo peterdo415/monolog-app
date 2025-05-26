@@ -1,145 +1,55 @@
-"use client";
-import { useState } from "react";
-import { Button, Card, CardContent, CardHeader, CardTitle, Plus, Pencil, Trash2 } from "@monolog/ui";
-import { NavBar } from "../components/NavBar";
-import { HouseholdForm } from "./HouseholdForm";
-import { useModal } from "../hooks/useModal";
-import { Modal } from "../components/Modal";
+import { db } from '@monolog/db/client';
+import { itemCategories, units, locations, householdItems, users } from '@monolog/db/schema';
+import { HouseholdClient } from './HouseholdClient';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { eq } from 'drizzle-orm';
 
-// 仮のデータ
-const dummyItems = [
-  {
-    id: 1,
-    name: "トイレットペーパー",
-    quantity: 8,
-    lowStock: false,
-    expiresAt: "2024-12-31",
-    category: "日用品",
-    unit: "個",
-    location: "キッチン",
-  },
-];
-
-export default function HouseholdPage() {
-  const { open, openModal, closeModal } = useModal();
-  const { open: editOpen, openModal: openEditModal, closeModal: closeEditModal } = useModal();
-  const [loading, setLoading] = useState(false);
-  const [items, setItems] = useState(dummyItems);
-  const [editItem, setEditItem] = useState<any | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-
-  // householdItems追加のダミー
-  const handleAdd = async (data: any) => {
-    setLoading(true);
-    // 本来はAPI経由で追加
-    setTimeout(() => {
-      setItems(prev => [...prev, { ...data, id: prev.length + 1, lowStock: false, expiresAt: "", category: "", unit: "", location: "" }]);
-      setLoading(false);
-      closeModal();
-    }, 800);
+async function getMasterData() {
+  const [categories, unitsList, locationsList] = await Promise.all([
+    db.select().from(itemCategories),
+    db.select().from(units),
+    db.select().from(locations),
+  ]);
+  return {
+    categories,
+    units: unitsList,
+    locations: locationsList,
   };
+}
 
-  // householdItems編集のダミー
-  const handleEdit = async (data: any) => {
-    setLoading(true);
-    setTimeout(() => {
-      setItems(prev => prev.map(item => item.id === editItem.id ? { ...item, ...data } : item));
-      setLoading(false);
-      closeEditModal();
-      setEditItem(null);
-    }, 800);
-  };
+async function getUserEmailFromSession() {
+  // セッションCookieからユーザーemailを取得する（必要に応じてAPI呼び出しやjwtデコード等に変更）
+  const cookieStore = await cookies();
+  const session = cookieStore.get('monolog_auth_user');
+  if (!session) return null;
+  try {
+    const user = JSON.parse(decodeURIComponent(session.value));
+    return user.email;
+  } catch {
+    return null;
+  }
+}
 
-  const handleEditClick = (item: any) => {
-    setEditItem(item);
-    openEditModal();
-  };
+// 共通: userEmailからユーザー取得
+async function getUserByEmail(email: string) {
+  return await db.select().from(users).where(eq(users.email, email)).then(rows => rows[0] ?? null);
+}
 
-  const handleDeleteClick = (item: any) => {
-    setDeleteTarget(item);
-    setDeleteOpen(true);
-  };
+async function getHouseholdItems(userEmail: string) {
+  // household_itemsをuserEmailで取得
+  const user = await getUserByEmail(userEmail);
+  if (!user) return [];
+  // householdItemsにリレーションjoinして必要な情報を取得
+  const items = await db.select().from(householdItems)
+    .where(eq(householdItems.userId, user.id));
+  return items;
+}
 
-  const handleDelete = () => {
-    if (!deleteTarget) return;
-    setItems(prev => prev.filter(item => item.id !== deleteTarget.id));
-    setDeleteOpen(false);
-    setDeleteTarget(null);
-  };
-
-  return (
-    <>
-      <NavBar />
-      <main className="max-w-4xl mx-auto py-10 px-4" style={{ marginTop: '64px' }}>
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold">日用品管理</h1>
-          <Button variant="default" size="sm" onClick={openModal}>
-            <Plus className="w-4 h-4 mr-2" /> 新規追加
-          </Button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {items.length === 0 ? (
-            <div className="col-span-2 text-center text-gray-500 py-12">データがありません</div>
-          ) : (
-            items.map((item) => (
-              <Card key={item.id} className="relative group">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>{item.name}</span>
-                    <div className="flex items-center gap-2">
-                      {item.lowStock && (
-                        <span className="text-xs text-red-500 ml-2">在庫少</span>
-                      )}
-                      <Button size="icon" variant="ghost" onClick={() => handleEditClick(item)} aria-label="編集">
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button size="icon" variant="ghost" onClick={() => handleDeleteClick(item)} aria-label="削除">
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col gap-2 text-sm">
-                    <div>
-                      <span className="font-medium">カテゴリ:</span> {item.category}
-                    </div>
-                    <div>
-                      <span className="font-medium">数量:</span> {item.quantity} {item.unit}
-                    </div>
-                    <div>
-                      <span className="font-medium">場所:</span> {item.location}
-                    </div>
-                    <div>
-                      <span className="font-medium">期限:</span> {item.expiresAt}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-        <HouseholdForm open={open} onOpenChange={v => v ? openModal() : closeModal()} onSubmit={handleAdd} loading={loading} />
-        {editItem && (
-          <HouseholdForm
-            open={editOpen}
-            onOpenChange={v => v ? openEditModal() : closeEditModal()}
-            onSubmit={handleEdit}
-            loading={loading}
-            initialData={editItem}
-          />
-        )}
-        <Modal open={deleteOpen} onClose={() => setDeleteOpen(false)}>
-          <div className="text-center">
-            <h2 className="text-lg font-bold mb-4">本当に削除しますか？</h2>
-            <div className="flex justify-center gap-4 mt-6">
-              <Button variant="ghost" onClick={() => setDeleteOpen(false)}>キャンセル</Button>
-              <Button variant="destructive" onClick={handleDelete}>削除する</Button>
-            </div>
-          </div>
-        </Modal>
-      </main>
-    </>
-  );
+export default async function HouseholdPage() {
+  const master = await getMasterData();
+  const userEmail = await getUserEmailFromSession();
+  if (!userEmail) redirect('/login?from=household');
+  const items = await getHouseholdItems(userEmail);
+  return <HouseholdClient master={master} initialItems={items} userEmail={userEmail} />;
 } 

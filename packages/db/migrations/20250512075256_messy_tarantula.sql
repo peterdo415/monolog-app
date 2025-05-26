@@ -22,6 +22,11 @@ CREATE TABLE "item_categories" (
 	"label" jsonb NOT NULL,
 	CONSTRAINT "item_categories_code_unique" UNIQUE("code")
 );
+-- マスタデータINSERT
+INSERT INTO item_categories (id, code, label) VALUES
+  (1, 'cleaning', '{"ja": "清掃用品", "en": "Cleaning"}'),
+  (2, 'food', '{"ja": "食品", "en": "Food"}'),
+  (3, 'daily', '{"ja": "日用品", "en": "Daily Goods"}');
 --> statement-breakpoint
 CREATE TABLE "locations" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -29,6 +34,11 @@ CREATE TABLE "locations" (
 	"label" jsonb NOT NULL,
 	CONSTRAINT "locations_code_unique" UNIQUE("code")
 );
+-- マスタデータINSERT
+INSERT INTO locations (id, code, label) VALUES
+  (1, 'kitchen', '{"ja": "キッチン", "en": "Kitchen"}'),
+  (2, 'bathroom', '{"ja": "浴室", "en": "Bathroom"}'),
+  (3, 'living', '{"ja": "リビング", "en": "Living Room"}');
 --> statement-breakpoint
 CREATE TABLE "units" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -36,6 +46,11 @@ CREATE TABLE "units" (
 	"label" jsonb NOT NULL,
 	CONSTRAINT "units_code_unique" UNIQUE("code")
 );
+-- マスタデータINSERT
+INSERT INTO units (id, code, label) VALUES
+  (1, 'piece', '{"ja": "個", "en": "Piece"}'),
+  (2, 'bottle', '{"ja": "本", "en": "Bottle"}'),
+  (3, 'sheet', '{"ja": "枚", "en": "Sheet"}');
 --> statement-breakpoint
 ALTER TABLE "household_items" ADD CONSTRAINT "household_items_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "household_items" ADD CONSTRAINT "household_items_category_id_item_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."item_categories"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint

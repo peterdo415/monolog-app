@@ -30,7 +30,7 @@ services:
     environment:
       NODE_ENV:       development
       DATABASE_URL:   ${DATABASE_URL}
-      API_URL:        ${API_URL}
+      NEXT_PUBLIC_API_URL:        ${NEXT_PUBLIC_API_URL}
     ports:
       - "3001:3001"
     depends_on:
@@ -49,8 +49,8 @@ services:
       - ../.env
     environment:
       NODE_ENV:            development
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-      API_URL:        ${API_URL}
+      NEXT_PUBLIC_API_URL: http://api:3001
+      API_URL:        http://api:3001
     ports:
       - "3000:3000"
     depends_on:
@@ -63,6 +63,8 @@ services:
       target: migrator
     env_file:
       - ../.env
+    volumes:
+      - ../packages/db/docker:/docker-entrypoint-initdb.d
     depends_on:
       - db
 

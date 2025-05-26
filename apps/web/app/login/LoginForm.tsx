@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 export function LoginForm() {
@@ -9,6 +9,8 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const router = useRouter();
   const [error, setError] = useState('');
+  const searchParams = useSearchParams();
+  const from = searchParams.get('from');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +32,9 @@ export function LoginForm() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">ログイン</h1>
+        {from === 'household' && (
+          <div className="mb-4 text-center text-red-600 font-semibold">日用品一覧ページの閲覧にはログインが必要です</div>
+        )}
         <form onSubmit={handleLogin} className="space-y-4">
           <input
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
