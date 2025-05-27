@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import type { Session } from '@monolog/auth/types';
+import type { Session } from './types';
 
 const COOKIE_NAME = 'monolog_auth_user';
 

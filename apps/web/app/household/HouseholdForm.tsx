@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Button, Card, CardContent, CardHeader, CardTitle, Plus, Pencil, Trash2 } from "@monolog/ui";
-import { NavBar } from "../components/NavBar";
 import { useModal } from "../hooks/useModal";
 import { Modal } from "../components/Modal";
 import { useRouter } from 'next/navigation';
@@ -15,10 +14,17 @@ type HouseholdFormState = {
   expiresAt: string;
 };
 
-export function HouseholdForm({ master, onSubmit, loading, error, initialData, onClose }: {
+const numberKeys: (keyof Pick<HouseholdFormState, 'categoryId' | 'unitId' | 'locationId' | 'quantity'>)[] = [
+  'categoryId',
+  'unitId',
+  'locationId',
+  'quantity',
+];
+
+export function HouseholdForm({ master, onSubmit, loadingType, error, initialData, onClose }: {
   master: { categories: any[]; units: any[]; locations: any[] };
   onSubmit: (data: HouseholdFormState) => Promise<void>;
-  loading?: boolean;
+  loadingType?: 'add' | 'edit' | 'delete' | null;
   error?: string | null;
   initialData?: any;
   onClose: () => void;
@@ -45,12 +51,12 @@ export function HouseholdForm({ master, onSubmit, loading, error, initialData, o
     e.preventDefault();
     // 型チェック&キャスト
     const castedForm = { ...form };
-    ["categoryId", "unitId", "locationId", "quantity"].forEach((key) => {
-      const value = form[key as keyof typeof form];
+    numberKeys.forEach((key) => {
+      const value = form[key];
       if (typeof value !== "number") {
         // 数字文字列ならキャスト
         if (/^\d+$/.test(String(value))) {
-          castedForm[key as keyof typeof form] = Number(value);
+          castedForm[key] = Number(value);
         } else {
           alert(`${key}は数値で入力してください`);
           return;
@@ -103,199 +109,34 @@ export function HouseholdForm({ master, onSubmit, loading, error, initialData, o
       {error && <div className="text-red-500 text-sm mt-1">{error}</div>}
       <div className="flex justify-end gap-2">
         <Button variant="ghost" type="button" onClick={onClose}>キャンセル</Button>
-        <Button type="submit" disabled={loading}>{loading ? "保存中..." : "保存"}</Button>
+        <Button type="submit" disabled={loadingType === 'add' || loadingType === 'edit'}>
+          {loadingType === 'add' && '追加中...'}
+          {loadingType === 'edit' && '保存中...'}
+          {!loadingType && '保存'}
+        </Button>
       </div>
     </form>
   );
 }
 
-export function HouseholdFormContainer({ master }: { master: { categories: any[]; units: any[]; locations: any[] } }) {
-  const { open, openModal, closeModal } = useModal();
-  const { open: editOpen, openModal: openEditModal, closeModal: closeEditModal } = useModal();
-  const [loading, setLoading] = useState(false);
-  const [items, setItems] = useState<any[]>([]);
-  const [editItem, setEditItem] = useState<any | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [addError, setAddError] = useState<string | null>(null);
-  const router = useRouter();
-  const [sessionChecked, setSessionChecked] = useState(false);
-
-  useEffect(() => {
-    fetch('/api/auth/session')
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        setUserEmail(data?.user?.email ?? null);
-        setSessionChecked(true);
-      });
-  }, []);
-
-  useEffect(() => {
-    if (sessionChecked && !userEmail) {
-      router.push('/login?from=household');
-    }
-  }, [sessionChecked, userEmail, router]);
-
-  const fetchItems = async (email: string) => {
-    const res = await fetch(`/api/household?userEmail=${encodeURIComponent(email)}`);
-    if (res.ok) {
-      const data = await res.json();
-      setItems(data);
-    }
-  };
-
-  useEffect(() => {
-    if (userEmail) fetchItems(userEmail);
-  }, [userEmail]);
-
-  const handleAdd = async (data: any) => {
-    if (!userEmail) return;
-    setLoading(true);
-    setAddError(null);
-    const res = await fetch('/api/household', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...data, userEmail }),
-    });
-    setLoading(false);
-    if (res.ok) {
-      const newItem = await res.json();
-      setItems(prev => [...prev, newItem]);
-      closeModal();
-    } else {
-      setAddError('追加に失敗しました。もう一度お試しください。');
-    }
-  };
-
-  const handleEdit = async (data: any) => {
-    if (!userEmail || !editItem) return;
-    setLoading(true);
-    const res = await fetch(`/api/household/${editItem.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...data, userEmail }),
-    });
-    setLoading(false);
-    if (res.ok) {
-      const updatedItem = await res.json();
-      closeEditModal();
-      setEditItem(null);
-      setItems(prev =>
-        prev.map(item => item.id === updatedItem.id ? { ...item, ...updatedItem } : item)
-      );
-    }
-  };
-
-  const handleEditClick = (item: any) => {
-    setEditItem(item);
-    openEditModal();
-  };
-
-  const handleDeleteClick = (item: any) => {
-    setDeleteTarget(item);
-    setDeleteOpen(true);
-  };
-
-  const handleDelete = async () => {
-    if (!deleteTarget || !userEmail) return;
-    setLoading(true);
-    const idToDelete = deleteTarget.id;
-    const res = await fetch(`/api/household/${idToDelete}?userEmail=${encodeURIComponent(userEmail)}`, {
-      method: 'DELETE',
-    });
-    setLoading(false);
-    if (res.ok) {
-      setDeleteOpen(false);
-      setItems(prev => prev.filter(item => item.id !== idToDelete));
-      setDeleteTarget(null);
-    }
-  };
-
+export function HouseholdFormContainer({ master, onSubmit, loading, error, initialData, onClose }: {
+  master: { categories: any[]; units: any[]; locations: any[] };
+  onSubmit: (data: HouseholdFormState) => Promise<void>;
+  loading?: boolean;
+  error?: string | null;
+  initialData?: any;
+  onClose: () => void;
+}) {
   return (
-    <>
-      <NavBar />
-      <main className="max-w-4xl mx-auto py-10 px-4" style={{ marginTop: '64px' }}>
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold">日用品管理</h1>
-          <Button variant="default" size="sm" onClick={openModal}>
-            <Plus className="w-4 h-4 mr-2" /> 新規追加
-          </Button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {items.length === 0 ? (
-            <div className="col-span-2 text-center text-gray-500 py-12">データがありません</div>
-          ) : (
-            items.map((item) => (
-              <Card key={item.id} className="relative group">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>{item.name}</span>
-                    <div className="flex items-center gap-2">
-                      {item.lowStock && (
-                        <span className="text-xs text-red-500 ml-2">在庫少</span>
-                      )}
-                      <Button size="icon" variant="ghost" onClick={() => handleEditClick(item)} aria-label="編集">
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button size="icon" variant="ghost" onClick={() => handleDeleteClick(item)} aria-label="削除">
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col gap-2 text-sm">
-                    <div>
-                      <span className="font-medium">カテゴリ:</span> {item.category}
-                    </div>
-                    <div>
-                      <span className="font-medium">数量:</span> {item.quantity} {item.unit}
-                    </div>
-                    <div>
-                      <span className="font-medium">場所:</span> {item.location}
-                    </div>
-                    <div>
-                      <span className="font-medium">期限:</span> {item.expiresAt}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-        {/* HouseholdForm（追加・編集用） */}
-        <Modal open={open} onClose={closeModal}>
-          <HouseholdForm
-            master={master}
-            onSubmit={handleAdd}
-            loading={loading}
-            error={addError}
-            onClose={closeModal}
-          />
-        </Modal>
-        {editItem && (
-          <Modal open={editOpen} onClose={closeEditModal}>
-            <HouseholdForm
-              master={master}
-              onSubmit={handleEdit}
-              loading={loading}
-              error={addError}
-              initialData={editItem}
-              onClose={closeEditModal}
-            />
-          </Modal>
-        )}
-        <Modal open={deleteOpen} onClose={() => setDeleteOpen(false)}>
-          <div className="text-center">
-            <h2 className="text-lg font-bold mb-4">本当に削除しますか？</h2>
-            <div className="flex justify-center gap-4 mt-6">
-              <Button variant="ghost" onClick={() => setDeleteOpen(false)}>キャンセル</Button>
-              <Button variant="destructive" onClick={handleDelete}>削除する</Button>
-            </div>
-          </div>
-        </Modal>
-      </main>
-    </>
+    <Modal open={true} onClose={onClose}>
+      <HouseholdForm
+        master={master}
+        onSubmit={onSubmit}
+        loadingType={loading}
+        error={error}
+        initialData={initialData}
+        onClose={onClose}
+      />
+    </Modal>
   );
 } 

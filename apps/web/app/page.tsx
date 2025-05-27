@@ -5,8 +5,8 @@ import Image, { type ImageProps } from "next/image";
 import { Button } from "@monolog/ui";
 import styles from "./page.module.css";
 import { Footer } from './components/Footer'
-import { NavBar } from './components/NavBar'
-import { LoginStatus } from './components/LoginStatus';
+import { LoginStatus } from './components/common/LoginStatus';
+import { cookies } from 'next/headers';
 
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
@@ -29,10 +29,19 @@ const ThemeImage = (props: Props) => {
   );
 };
 
-export default function Home() {
+export default async function Home() {
+  // サーバーサイドでセッションからユーザーを取得（async/awaitでcookieストア取得）
+  const cookieStore = await cookies();
+  const session = cookieStore.get('monolog_auth_user');
+  let user = null;
+  if (session) {
+    try {
+      user = JSON.parse(decodeURIComponent(session.value));
+    } catch {}
+  }
+
   return (
     <div className={styles.page}>
-      <NavBar />
       <main className={styles.main} style={{ marginTop: '64px' }}>
         <ThemeImage
           className={styles.logo}

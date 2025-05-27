@@ -1,3 +1,3 @@
-export * from '@monolog/auth/server';
-export { getSession } from '@monolog/auth/server';
-export * from '@monolog/auth/types'; 
+export * from './server';
+export { getSession, signIn, signOut } from './server';
+export * from './types';

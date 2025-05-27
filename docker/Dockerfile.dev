@@ -80,4 +80,5 @@ ENTRYPOINT ["sh", "-c", "\
   pnpm exec drizzle-kit migrate; \
   pnpm exec drizzle-kit push --yes; \
   PGPASSWORD=$POSTGRES_PASSWORD psql -h db -U $POSTGRES_USER -d $POSTGRES_DB -f /docker-entrypoint-initdb.d/init-seed-data.sql; \
+  pnpm exec tsx scripts/seed.ts; \
 "]

@@ -1,15 +1,17 @@
 // apps/web/app/api/users/route.ts
 import { NextResponse } from 'next/server';
+import { db, users, eq } from '@monolog/db';
 
-export async function GET() {
-  const API_URL =
-    process.env.API_URL ||
-    (process.env.NODE_ENV === 'development'
-      ? 'http://api:3001'
-      : 'http://api:3001');
-  const res = await fetch(`${API_URL}/users`, { cache: 'no-store' });
-  const users = await res.json();
-  return NextResponse.json(users);
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const email = searchParams.get('email');
+  if (email) {
+    const dbUser = await db.select().from(users).where(eq(users.email, email)).then(rows => rows[0] ?? null);
+    return NextResponse.json({ user: dbUser });
+  } else {
+    const allUsers = await db.select().from(users);
+    return NextResponse.json({ users: allUsers });
+  }
 }
 
 export async function POST(request: Request) {

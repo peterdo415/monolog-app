@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { Button, Card, CardContent, CardHeader, CardTitle, Plus, Pencil, Trash2 } from "@monolog/ui";
-import { NavBar } from "../components/NavBar";
 import { useModal } from "../hooks/useModal";
 import { Modal } from "../components/Modal";
 import { HouseholdForm } from "./HouseholdForm";
@@ -13,7 +12,7 @@ export function HouseholdClient({ master, initialItems, userEmail }: {
 }) {
   const { open, openModal, closeModal } = useModal();
   const { open: editOpen, openModal: openEditModal, closeModal: closeEditModal } = useModal();
-  const [loading, setLoading] = useState(false);
+  const [loadingType, setLoadingType] = useState<null | 'add' | 'edit' | 'delete'>(null);
   const [items, setItems] = useState<any[]>(initialItems);
   const [editItem, setEditItem] = useState<any | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
@@ -29,14 +28,14 @@ export function HouseholdClient({ master, initialItems, userEmail }: {
   };
 
   const handleAdd = async (data: any) => {
-    setLoading(true);
+    setLoadingType('add');
     setAddError(null);
     const res = await fetch('/api/household', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...data, userEmail }),
     });
-    setLoading(false);
+    setLoadingType(null);
     if (res.ok) {
       const newItem = await res.json();
       setItems(prev => [...prev, newItem]);
@@ -48,13 +47,13 @@ export function HouseholdClient({ master, initialItems, userEmail }: {
 
   const handleEdit = async (data: any) => {
     if (!editItem) return;
-    setLoading(true);
+    setLoadingType('edit');
     const res = await fetch(`/api/household/${editItem.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...data, userEmail }),
     });
-    setLoading(false);
+    setLoadingType(null);
     if (res.ok) {
       const updatedItem = await res.json();
       closeEditModal();
@@ -75,11 +74,11 @@ export function HouseholdClient({ master, initialItems, userEmail }: {
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    setLoading(true);
+    setLoadingType('delete');
     const res = await fetch(`/api/household/${deleteTarget.id}?userEmail=${encodeURIComponent(userEmail)}`, {
       method: 'DELETE',
     });
-    setLoading(false);
+    setLoadingType(null);
     if (res.ok) {
       setDeleteOpen(false);
       setDeleteTarget(null);
@@ -89,7 +88,6 @@ export function HouseholdClient({ master, initialItems, userEmail }: {
 
   return (
     <>
-      <NavBar />
       <main className="max-w-4xl mx-auto py-10 px-4" style={{ marginTop: '64px' }}>
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold">日用品管理</h1>
@@ -144,7 +142,7 @@ export function HouseholdClient({ master, initialItems, userEmail }: {
           <HouseholdForm
             master={master}
             onSubmit={handleAdd}
-            loading={loading}
+            loadingType={loadingType}
             error={addError}
             onClose={closeModal}
           />
@@ -155,7 +153,7 @@ export function HouseholdClient({ master, initialItems, userEmail }: {
               master={master}
               initialData={editItem}
               onSubmit={handleEdit}
-              loading={loading}
+              loadingType={loadingType}
               onClose={closeEditModal}
             />
           </Modal>
@@ -163,9 +161,10 @@ export function HouseholdClient({ master, initialItems, userEmail }: {
         <Modal open={deleteOpen} onClose={() => setDeleteOpen(false)}>
           <div className="text-center">
             <h2 className="text-lg font-bold mb-4">本当に削除しますか？</h2>
+            {loadingType === 'delete' && <div className="text-blue-600 mb-2">削除中...</div>}
             <div className="flex justify-center gap-4 mt-6">
-              <Button variant="ghost" onClick={() => setDeleteOpen(false)}>キャンセル</Button>
-              <Button variant="destructive" onClick={handleDelete}>削除する</Button>
+              <Button variant="ghost" onClick={() => setDeleteOpen(false)} disabled={loadingType === 'delete'}>キャンセル</Button>
+              <Button variant="destructive" onClick={handleDelete} disabled={loadingType === 'delete'}>削除する</Button>
             </div>
           </div>
         </Modal>

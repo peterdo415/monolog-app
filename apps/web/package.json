@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@monolog/db": "workspace:*",
+    "@monolog/auth": "workspace:*",
     "@monolog/eslint-config": "workspace:*",
     "@monolog/ui": "workspace:*",
     "@tanstack/react-query": "^5.75.6",

@@ -1,4 +1,4 @@
-import HouseholdForm from "./HouseholdForm";
+import { HouseholdForm } from "./HouseholdForm";
 export default function HouseholdFormModal({ master, initialData, onSubmit, onClose }: { master: any, initialData?: any, onSubmit: (data: any) => void, onClose: () => void }) {
   // モーダルUIでラップ（簡易例）
   return (

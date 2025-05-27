@@ -16,13 +16,15 @@
       "require": "./dist/types.js"
     }
   },
-  "scripts": {},
-  "devDependencies": {
-    "next": "^15.3.2"
+  "scripts": {
+    "build": "tsc --project tsconfig.json"
   },
   "type": "module",
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "next": "^15.3.2"
   },
   "types": "dist/index.d.ts"
 }

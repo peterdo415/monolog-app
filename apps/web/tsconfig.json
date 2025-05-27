@@ -1,13 +1,10 @@
 {
   "extends": "../../packages/tsconfig/tsconfig.base.json",
   "compilerOptions": {
-    "moduleResolution": "NodeNext",
-    "module": "NodeNext",
+    "moduleResolution": "node",
+    "module": "esnext",
     "jsx": "preserve",
     "incremental": true,
-    "rootDir": "src",
-    "outDir": ".next",
-    "target": "ES2022",
     "strict": true,
     "plugins": [
       {
@@ -24,6 +21,9 @@
     "skipLibCheck": true,
     "types": ["next", "react", "react-dom"],
     "baseUrl": ".",
+    "paths": {
+      "@/components/*": ["app/components/*"]
+    }
   },
   "include": [
     "**/*.ts",

@@ -4,6 +4,9 @@ import { users, householdItems, itemCategories, units, locations } from '@monolo
 import { eq, type SQL, type InferSelectModel } from '@monolog/db';
 import { CreateHouseholdDto } from '../../dto/create-household.dto.js';
 
+// 数値変換対象のプロパティ名を厳密に型定義
+type NumericKey = keyof Pick<CreateHouseholdDto, 'categoryId' | 'unitId' | 'locationId' | 'quantity'>;
+const numericKeys: NumericKey[] = ['categoryId', 'unitId', 'locationId', 'quantity'];
 
 type HouseholdItem = InferSelectModel<typeof householdItems>;
 type ItemCategory = InferSelectModel<typeof itemCategories>;
@@ -20,11 +23,11 @@ interface HouseholdItemWithRelations extends HouseholdItem {
 export class HouseholdService {
   async create(dto: CreateHouseholdDto) {
     // 型チェック&キャスト
-    ["categoryId", "unitId", "locationId", "quantity"].forEach((key) => {
+    numericKeys.forEach((key) => {
       const value = dto[key];
-      if (typeof value !== "number") {
+      if (typeof value !== 'number') {
         if (/^\d+$/.test(String(value))) {
-          dto[key] = Number(value);
+          dto[key] = Number(value) as any;
         } else {
           throw new BadRequestException(`${key}は数値で入力してください`);
         }
@@ -81,11 +84,11 @@ export class HouseholdService {
   }
 
   async update(id: number, dto: any) {
-    ["categoryId", "unitId", "locationId", "quantity"].forEach((key) => {
+    numericKeys.forEach((key) => {
       const value = dto[key];
-      if (typeof value !== "number") {
+      if (typeof value !== 'number') {
         if (/^\d+$/.test(String(value))) {
-          dto[key] = Number(value);
+          dto[key] = Number(value) as any;
         } else {
           throw new BadRequestException(`${key}は数値で入力してください`);
         }

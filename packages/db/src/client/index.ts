@@ -1,12 +1,10 @@
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import * as dotenv from 'dotenv';
 
-dotenv.config({ path: process.cwd() + '/.env' });
-
+// Next.jsではdotenv不要。process.env.DATABASE_URLは自動で注入される
 const pool = new Pool({
-  connectionString: String(process.env.DATABASE_URL),
+  connectionString: process.env.DATABASE_URL,
   max: 10,
 });
 
-export const db = drizzle(pool); 
+export const db = drizzle(pool);

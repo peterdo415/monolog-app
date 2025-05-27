@@ -46,5 +46,5 @@ export class UsersService {
       );
       throw new InternalServerErrorException('Error creating user');
     }
-  }  
+  }
 }
