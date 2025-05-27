@@ -46,4 +46,4 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 )
 Button.displayName = "Button"
 
-export { Button } from "@monolog/ui"; 
+export { Button, buttonVariants } from "@monolog/ui"; 

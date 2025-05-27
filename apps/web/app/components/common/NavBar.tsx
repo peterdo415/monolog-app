@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export function NavBar({ user }: { user: any }) {
   return (
-    <nav className="flex items-center justify-between h-16 px-6 border-b bg-white">
+    <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between h-16 px-6 border-b bg-white">
       <div className="flex items-center gap-4">
         <Link href="/" className="font-bold text-lg">Monolog App</Link>
         <Link href="/household" className="text-gray-700 hover:text-black">日用品管理</Link>
