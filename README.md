@@ -140,9 +140,13 @@
 │  ├─ ui/                        # shadcn‑ui ラッパー & Storybook
 │  │  └─ index.ts
 │  ├─ db/                        # Drizzle schema / migrations
-│  │  ├─ schema/
-│  │  ├─ migrations/
-│  │  └─ client.ts
+│  │  ├─ schema/                 # DBスキーマ・テーブル定義
+│  │  ├─ types/                  # 型定義（必要なら）
+│  │  ├─ client/                 # DBクライアント
+│  │  ├─ seed/                   # シードスクリプト
+│  │  ├─ migrations/             # マイグレーション
+│  │  ├─ docker/                 # 初期SQL等
+│  │  └─ package.json
 │  ├─ auth/                      # Better Auth + Drizzle adapters
 │  ├─ config/                    # 共通 ESLint/Biome/TS 設定
 │  │  ├─ eslint.config.js

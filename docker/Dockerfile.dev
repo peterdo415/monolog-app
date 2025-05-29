@@ -1,28 +1,27 @@
 # ── Dockerfile.dev ──
-#
-# マルチステージ構成で依存を一度だけ解決し、
-# API と Web をそれぞれのターゲットで起動します。
+# モノレポ開発用: API/Web/マイグレーションをマルチステージで構築
 
-### 1) 依存解決ステージ ###
+### 1) 依存解決ステージ（全サービス共通） ###
 FROM node:20-slim AS deps
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends procps && rm -rf /var/lib/apt/lists/*
 
-# pnpm CLI を固定
+# pnpm CLI をグローバルインストール
 RUN npm install -g pnpm@^10
 
-# モノレポのルート package / lock / workspace 定義をコピー
+# 依存解決に必要なファイルのみを先にコピー（キャッシュ効率UP）
 COPY ../package.json ../pnpm-lock.yaml ../pnpm-workspace.yaml ./
 
-# モノレポ全体の依存を一度だけインストール（optionalDependencies も含む）
+# モノレポ全体の依存を一度だけインストール
 RUN pnpm install --include=optional --workspace-root
+
 
 ### 2) API 開発用ステージ ###
 FROM deps AS api-dev
 WORKDIR /app
 
-# API／DB／TS 設定のみコピー
+# 必要なパッケージのみをコピー
 COPY ../apps/api       ./apps/api
 COPY ../packages/db    ./packages/db
 COPY ../packages/auth  ./packages/auth
@@ -30,18 +29,16 @@ COPY ../packages/typescript-config ./packages/typescript-config
 COPY ../packages/eslint-config       ./packages/eslint-config
 
 WORKDIR /app/apps/api
-RUN pnpm install
+RUN pnpm install --no-frozen-lockfile
 
 ENV NODE_ENV=development
 EXPOSE 3001
-# ホットリロードモード
 CMD ["pnpm", "exec", "nest", "start", "--watch"]
 
 ### 3) Web 開発用ステージ ###
 FROM deps AS web-dev
 WORKDIR /app
 
-# Web／UI／ESLint 設定のみコピー
 COPY ../apps/web          ./apps/web
 COPY ../packages/ui       ./packages/ui
 COPY ../packages/eslint-config ./packages/eslint-config
@@ -53,26 +50,37 @@ ENV NODE_ENV=development
 EXPOSE 3000
 CMD ["pnpm", "run", "dev"]
 
+
 ### 4) マイグレーション実行ステージ ###
 FROM deps AS migrator
+WORKDIR /app
 
-COPY .. .
+# 依存解決に必要なファイルのみコピー
+COPY ../package.json ../pnpm-lock.yaml ../pnpm-workspace.yaml ./
+COPY ../packages/db/package.json ./packages/db/
+COPY ../packages/db/tsconfig.json ./packages/db/
 
-# ホストのnode_modulesを削除（コンテナ内でpnpm installする前に）
-RUN rm -rf node_modules */node_modules */*/node_modules apps/*/node_modules packages/*/node_modules
+# 依存解決
+RUN pnpm install
+
+# マイグレーション/seed/初期SQL等のみコピー
+COPY ../packages/db/drizzle.config.ts ./packages/db/drizzle.config.ts
+COPY ../packages/db/migrations ./packages/db/migrations
+COPY ../packages/db/docker ./packages/db/docker
+COPY ../packages/db/seed ./packages/db/seed
+COPY ../packages/db/schema ./packages/db/schema
+COPY ../packages/db/types ./packages/db/types
+COPY ../packages/db/client ./packages/db/client
 
 WORKDIR /app/packages/db
 
-# 依存を再インストール
-RUN pnpm install
-
-# Postgres 側の host ツール (nc, psql) を入れる
+# DBツールをインストール
 USER root
 RUN apt-get update \
  && apt-get install -y --no-install-recommends netcat-openbsd postgresql-client \
  && rm -rf /var/lib/apt/lists/*
 
-# DB の 5432 ポートが open になるまで待ってから migrate
+# DB起動待ち→マイグレーション→シード
 ENTRYPOINT ["sh", "-c", "\
   echo '⏳ Waiting for DB…'; \
   until nc -z db 5432; do sleep 1; done; \
@@ -80,5 +88,5 @@ ENTRYPOINT ["sh", "-c", "\
   pnpm exec drizzle-kit migrate; \
   pnpm exec drizzle-kit push --yes; \
   PGPASSWORD=$POSTGRES_PASSWORD psql -h db -U $POSTGRES_USER -d $POSTGRES_DB -f /docker-entrypoint-initdb.d/init-seed-data.sql; \
-  pnpm exec tsx scripts/seed.ts; \
+  pnpm exec tsx seed/seed.ts; \
 "]

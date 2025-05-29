@@ -7,7 +7,7 @@ dotenv.config({ path: join(__dirname, "../../.env") });
 
 export default defineConfig({
   // 「packages/db」直下で実行する前提なので、ここは相対パスで "./" から始める
-  schema: "./src/schema/index.ts",
+  schema: "./schema/index.ts",
 
   // migrations フォルダも同様に相対指定
   out: "./migrations",

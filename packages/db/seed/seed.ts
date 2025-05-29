@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import { faker } from '@faker-js/faker';
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { users, itemCategories, units, locations, householdItems } from '../src/schema/index';
+import { users, itemCategories, units, locations, householdItems } from '../schema/index';
 import { eq } from 'drizzle-orm';
 
 // 1) 必ず最初に .env を読み込む
