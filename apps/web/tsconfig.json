@@ -1,8 +1,8 @@
 {
   "extends": "../../packages/tsconfig/tsconfig.base.json",
   "compilerOptions": {
-    "moduleResolution": "node",
-    "module": "esnext",
+    "moduleResolution": "nodenext",
+    "module": "NodeNext",
     "jsx": "preserve",
     "incremental": true,
     "strict": true,

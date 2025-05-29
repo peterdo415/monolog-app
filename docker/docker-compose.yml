@@ -44,7 +44,7 @@ services:
     working_dir: /app/apps/web
     volumes:
       - ../:/app:cached
-      - web_node_modules:/app/apps/web/node_modules # uiを追加した時に即時反映できるように
+      - web_node_modules:/app/apps/web/node_modules
     env_file:
       - ../.env
     environment:
@@ -68,7 +68,61 @@ services:
     depends_on:
       - db
 
+  api-bun:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+      target: api-dev
+    working_dir: /app/apps/api
+    volumes:
+      - ../apps/api:/app/apps/api:cached
+      - api_bun_node_modules:/app/apps/api/node_modules
+    env_file:
+      - ../.env
+    environment:
+      NODE_ENV:       development
+      DATABASE_URL:   ${DATABASE_URL}
+      NEXT_PUBLIC_API_URL:        ${NEXT_PUBLIC_API_URL}
+    ports:
+      - "3101:3001"
+    depends_on:
+      - migrator-bun
+
+  web-bun:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+      target: web-dev
+    working_dir: /app/apps/web
+    volumes:
+      - ../:/app:cached
+      - web_bun_node_modules:/app/apps/web/node_modules
+    env_file:
+      - ../.env
+    environment:
+      NODE_ENV:            development
+      NEXT_PUBLIC_API_URL: http://api-bun:3001
+      API_URL:        http://api-bun:3001
+    ports:
+      - "3100:3000"
+    depends_on:
+      - migrator-bun
+
+  migrator-bun:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+      target: migrator
+    env_file:
+      - ../.env
+    volumes:
+      - ../packages/db/docker:/docker-entrypoint-initdb.d
+    depends_on:
+      - db
+
 volumes:
   db-data:
   api_node_modules:
   web_node_modules:
+  api_bun_node_modules:
+  web_bun_node_modules:
