@@ -1,18 +1,15 @@
-# Node Modules はホストと同期させるのでイメージには不要
-../node_modules
-../apps/**/node_modules
-../packages/**/node_modules
-
-# ビルド成果物
-../.next
-../dist
-../turbo
-
-# ローカル設定
-../.env
+# Node Modules・ビルド成果物・その他不要ファイルを全て除外
+node_modules
+**/node_modules
+*/node_modules
+.next
+dist
+*.tsbuildinfo
+*.log
 .env
-
-../.next
-
-../logs
-
+.env.*
+.DS_Store
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb

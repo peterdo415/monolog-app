@@ -9,12 +9,26 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "nodenext",
     "strict": true,
     "outDir": "./dist",
     "rootDir": ".",
-    "baseUrl": ".",
-    "skipLibCheck": true
+    "baseUrl": "/app",
+    "skipLibCheck": false,
+    "typeRoots": [
+      "/app/node_modules/@types"
+    ],
+    "types": [
+      "node",
+      "jest",
+      "express"
+    ],
+    "paths": {
+      "*": [
+        "/app/node_modules/*",
+        "/app/node_modules/@types/*"
+      ]
+    }
   },
   "references": [
     {
@@ -26,6 +40,9 @@
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "node_modules/drizzle-orm/singlestore*",
+    "node_modules/drizzle-orm/sqlite*",
+    "node_modules/drizzle-orm/mysql2*"
   ]
 }
