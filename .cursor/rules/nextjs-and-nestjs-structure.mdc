@@ -1,0 +1,38 @@
+---
+description: Recommended directory structure for Next.js and NestJS apps
+globs:
+  - "apps/web/**"
+  - "apps/api/**"
+  - "packages/**"
+alwaysApply: false
+---
+
+# Next.js と NestJS の構成ベストプラクティス
+
+以下のディレクトリ階層を参考に、機能ごとに整理された構造を保ちます。
+既存のレイアウトを破壊せず、拡張時は同じパターンに従ってください。
+
+```text
+apps/
+├─ web/            # Next.js 15 アプリ
+│  ├─ app/         # ルートページとルーティング
+│  ├─ components/  # 共通 UI / hooks
+│  └─ public/
+└─ api/            # NestJS 11 BFF
+   ├─ src/
+   │  ├─ main.ts
+   │  └─ modules/   # ドメインごとのモジュール
+   └─ test/
+packages/
+├─ ui/             # shadcn/ui ラッパー
+├─ db/             # Drizzle スキーマ / クライアント
+└─ auth/           # 認証関連ライブラリ
+```
+
+## 共通ルール
+
+1. アプリ間で共有する設定・スクリプトは `packages/` に配置し、`pnpm workspace` 経由で参照します。
+2. 各アプリの `tsconfig.json` と `package.json` は最小限の差分のみを記述し、中央管理を優先します。
+3. 新しい機能モジュールは既存の `modules/` または `components/` ディレクトリ配下に追加してください。
+4. 不要なネストを避け、役割ごとにディレクトリを切ることで可読性を保ちます。
+

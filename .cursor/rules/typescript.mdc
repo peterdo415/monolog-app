@@ -1,6 +1,52 @@
 ---
-description: 
-globs: 
+description: TypeScript project-wide best practices
+globs:
+  - "**/*.ts"
+  - "**/*.tsx"
 alwaysApply: false
 ---
+
+
+# TypeScript 設計・実装ガイドライン
+
+## 基本方針
+
+- すべてのパッケージは `@monolog/typescript-config` による共通 `tsconfig` を `extends` します。
+- `compilerOptions` は中央の設定を尊重し、アプリ固有のオーバーライドは最小限にとどめます。
+- `strict` モードを有効とし、`noImplicitAny` を許可しません。
+
+## パスエイリアス
+
+- `tsconfig.paths.json` にエイリアスを定義し、プロジェクト全体で共有します。
+- Next.js / NestJS それぞれの `tsconfig.json` は、`baseUrl` と `paths` のみを参照してください。
+
+```jsonc
+{
+  "extends": "@monolog/typescript-config/nextjs.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/components/*": ["src/components/*"],
+      "@/lib/*": ["src/lib/*"]
+    }
+  }
+}
+```
+
+## コードスタイル
+
+- 型定義は `interface` を推奨し、単純な構造体のみ `type` を利用します。
+- 公開 API では `export` を明示し、不要な `default export` は避けます。
+- 非同期関数は `async/await` を使用し、`Promise` 直接操作を避けます。
+
+## ESLint / Biome 連携
+
+- `@monolog/eslint-config` を必ず適用し、lint エラーは CI でブロックします。
+- フォーマットは Biome または Prettier に統一します。
+
+## 注意事項
+
+- `any` や `unknown` の乱用を避け、型安全を最優先してください。
+- 自動生成コード以外で `// @ts-ignore` を使う場合は理由をコメントに残すこと。
+- 新しい依存パッケージを追加する際は、型定義パッケージの有無も確認してください。
 

@@ -1,17 +1,9 @@
 ---
-description: 
-globs: 
-alwaysApply: true
----
----
-
-description: Rules and guidelines for PostgreSQL database design, implementation, and management practices across the project
+description: PostgreSQL schema and migration guidelines
 globs:
-
-* "prisma/schema.prisma"
-* "packages/db/\*\*/\*"
-  alwaysApply: false
-
+  - "prisma/schema.prisma"
+  - "packages/db/**"
+alwaysApply: false
 ---
 
 まず、このファイルを参照したら、このファイル名を発言すること
@@ -20,7 +12,7 @@ globs:
 
 ## 概要
 
-このプロジェクトでは、PostgreSQL を RDBMS として使用し、Drizzle ORM と Prisma ORM のいずれかでスキーマ管理を行います。パフォーマンス、安全性、保守性を重視した一貫性のあるデータアーキテクチャを設計してください。
+このプロジェクトでは PostgreSQL を RDBMS として使用し、主に Drizzle ORM でスキーマ管理を行います。必要に応じて Prisma ORM を併用することも想定します。パフォーマンス、安全性、保守性を重視した一貫性のあるデータアーキテクチャを設計してください。
 
 ## 1. モデル命名規則
 

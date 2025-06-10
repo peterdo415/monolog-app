@@ -1,6 +1,47 @@
 ---
-description: 
-globs: 
+description: Operational best practices for the monorepo
+globs:
+  - "docker/**"
+  - ".github/workflows/**"
+  - "apps/**/Dockerfile"
 alwaysApply: false
 ---
+
+
+# 運用ルール
+
+## 環境変数管理
+
+- `.env.example` を更新し、必要な変数を明確にします。
+- 機密情報はリポジトリに含めず、各環境のシークレットストア（Amplify、Lambda）を利用します。
+- 変数読み込みには `@nestjs/config` や Next.js のビルトイン機能を使用し、`dotenv` は開発環境のみで読み込むようにしてください。
+
+## Docker / Compose
+
+- `docker-compose.yml` で Next.js、NestJS、DB をまとめて起動します。
+- 個人環境用の上書きは `docker/compose.override.yml` に記載し、Git 管理しません。
+- Dockerfile ではマルチステージビルドを採用し、実行環境には `node:20-slim` を使用します。
+
+## CI/CD
+
+- GitHub Actions を用いて lint → build → deploy の順にパイプラインを構成します。
+- Web アプリは Amplify にデプロイし、API は ECR 経由で Lambda に更新します。
+- `terraform-plan.yml` ワークフローでインフラ変更を事前確認できるようにします。
+
+## テスト
+
+- 依存関係の差異をなくすため、`docker-compose.yml` で立ち上げた環境内でテストを実行します。
+- `pnpm lint` や `pnpm check-types` もコンテナ内で実行し、CI と同一の環境を再現します。
+
+## ロギングとモニタリング
+
+- NestJS では `Logger` クラスを使用し、環境に応じてログレベルを設定します。
+- Next.js / Lambda では標準出力にログを出し、CloudWatch 等に集約します。
+- 重大な例外は Sentry などの監視ツールへの送信を検討してください。
+
+## セキュリティ
+
+- 依存パッケージは `pnpm audit` を定期的に実行し、脆弱性ゼロを目指します。
+- Docker イメージはビルド時に Trivy などでスキャンし、問題があれば CI を失敗させます。
+- API エンドポイントでは認証・認可を必ず実装し、CSRF や XSS への対策を徹底してください。
 

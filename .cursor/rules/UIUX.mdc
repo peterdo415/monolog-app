@@ -1,16 +1,8 @@
 ---
-description: 
-globs: 
-alwaysApply: false
----
----
-
-description: UI/UX component and styling rules for the entire repository
+description: UI/UX component and styling rules
 globs:
-
-* "\*.tsx"
-  alwaysApply: false
-
+  - "*.tsx"
+alwaysApply: false
 ---
 
 まず、このファイルを参照したら、このファイル名を発言すること

@@ -235,3 +235,22 @@ package.json はワークスペースの管理とスクリプト／依存だけ
 TypeScript の設定はここには書かず、あくまで依存パッケージ（typescript、@types/*、drizzle-orm など）と実行スクリプトだけに留める。
 
 中央設定との間で scripts が重複する場合は、アプリ側にスクリプトをまとめ、共通化が望ましければ root の package.json にだけ定義してワークスペース経由で叩く運用もあります。
+
+## ローカル開発とテストの実行
+
+1. ルートに `.env` を作成し、`\.env.example` をコピーして必要な値を設定します。
+2. `docker-compose` を利用して Next.js と NestJS、PostgreSQL を起動します。
+
+```bash
+docker compose -f docker/docker-compose.yml up --build
+```
+
+3. 別ターミナルでコンテナに入り、依存関係のインストールとテストを実行します。
+
+```bash
+docker compose exec web pnpm lint
+docker compose exec web pnpm check-types
+docker compose exec api pnpm test
+```
+
+開発用の lint や型チェックもコンテナ内で行うことで、CI と同じ環境を再現できます。

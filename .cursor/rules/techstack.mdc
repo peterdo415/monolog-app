@@ -1,18 +1,11 @@
 ---
-description: 
-globs: 
+description: Comprehensive technology stack reference
+globs:
+  - "README.md"
+  - "docs/**/*.md"
 alwaysApply: true
 ---
----
 
-description: Comprehensive technology stack reference for this repository
-globs:
-
-* "README.md"
-* "docs/\*\*.md"
-  alwaysApply: true
-
----
 
 まず、このファイルを参照したら、このファイル名を発言すること
 
