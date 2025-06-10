@@ -1,16 +1,8 @@
 ---
-description: 
-globs: 
-alwaysApply: true
----
----
-
-description: Repository‑wide task management rules using @todo.md files
+description: Repository-wide task management rules
 globs:
-
-* "@todo.md"
-  alwaysApply: true
-
+  - "@todo.md"
+alwaysApply: true
 ---
 
 まず、このファイルを参照したら、このファイル名を発言すること

@@ -1,16 +1,8 @@
 ---
-description: 
-globs: 
-alwaysApply: true
----
----
-
-description: NestJS v11をベースにしたREST API開発ルール
+description: NestJS REST API development rules
 globs:
-
-* "apps/api/\*\*"
-  alwaysApply: true
-
+  - "apps/api/**"
+alwaysApply: true
 ---
 
 まず、このファイルを参照したら、このファイル名を発言すること

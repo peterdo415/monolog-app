@@ -1,18 +1,10 @@
 ---
-description: 
-globs: 
-alwaysApply: true
----
----
-
-description: Apply this rule to the entire repository
+description: Next.js implementation guidelines
 globs:
-
-* "apps/web/\*\*"
-* "\*.tsx"
-* "\*.ts"
-  alwaysApply: true
-
+  - "apps/web/**"
+  - "*.tsx"
+  - "*.ts"
+alwaysApply: true
 ---
 
 まず、このファイルを参照したら、このファイル名を発言すること
@@ -91,6 +83,7 @@ src/
 * **デフォルトで Server Components を使用**
 * **データフェッチングを含むコンポーネントは Server Components で実装**
 * SEO 対応が必要なコンポーネントは Server Components で実装
+* Server Actions を使用する場合も Server Components で記述
 
 ### Client Components
 
